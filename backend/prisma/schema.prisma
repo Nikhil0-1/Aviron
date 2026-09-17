@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("OPERATOR") // ADMIN, OPERATOR, MEDICAL_OPERATOR, VIEWER
+  createdAt DateTime @default(now())
+}
+
+model AvironUnit {
+  id             String   @id @default(uuid())
+  code           String   @unique // e.g. AVIRON-01
+  name           String
+  model          String   @default("AVIRON Mk-IV Rescue Recon")
+  status         String   @default("STANDBY") // ACTIVE, STANDBY, CHARGING, OFFLINE
+  ipAddress      String?
+  battery        Float    @default(100.0)
+  lat            Float    @default(28.6139)
+  lng            Float    @default(77.2090)
+  speed          Float    @default(0.0)
+  heading        Float    @default(0.0)
+  signalStrength Int      @default(95)
+  lastSeen       DateTime @default(now())
+  
+  missions       Mission[]
+  telemetry      Telemetry[]
+  detections     Detection[]
+  payloads       Payload[]
+  alerts         Alert[]
+  commMessages   CommunicationMessage[]
+  logs           ConnectionLog[]
+}
+
+model Mission {
+  id           String   @id @default(uuid())
+  code         String   @unique // e.g. AV-001
+  title        String
+  type         String   // FLOOD_RESCUE, SEARCH_AND_RESCUE, MEDICAL_EMERGENCY, DISASTER_RECON, SURVIVOR_DETECTION, MEDICAL_SUPPLY_DELIVERY, ENVIRONMENTAL_MONITORING
+  priority     String   @default("HIGH") // CRITICAL, HIGH, MEDIUM, LOW
+  status       String   @default("READY") // DRAFT, READY, IN_PROGRESS, PAUSED, COMPLETED, ABORTED
+  targetLat    Float
+  targetLng    Float
+  searchRadius Float    @default(500.0)
+  
+  avironUnitId String?
+  avironUnit   AvironUnit? @relation(fields: [avironUnitId], references: [id])
+  
+  waypoints    Waypoint[]
+  detections   Detection[]
+  survivors    Survivor[]
+  payloads     Payload[]
+  alerts       Alert[]
+  events       MissionEvent[]
+  reports      MissionReport[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Waypoint {
+  id        String   @id @default(uuid())
+  missionId String
+  mission   Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  seq       Int
+  lat       Float
+  lng       Float
+  altitude  Float    @default(15.0)
+  action    String   @default("NAVIGATE") // NAVIGATE, SEARCH_PATTERN, HOVER, DEPLOY_PAYLOAD
+  isReached Boolean  @default(false)
+}
+
+model Telemetry {
+  id             String   @id @default(uuid())
+  avironUnitId   String
+  avironUnit     AvironUnit @relation(fields: [avironUnitId], references: [id], onDelete: Cascade)
+  battery        Float
+  voltage        Float
+  current        Float
+  speed          Float
+  heading        Float
+  lat            Float
+  lng            Float
+  altitude       Float
+  temperature    Float
+  humidity       Float
+  airQuality     Float
+  gasLevel       Float
+  signalStrength Int
+  networkLatency Int
+  timestamp      DateTime @default(now())
+}
+
+model Detection {
+  id            String   @id @default(uuid())
+  avironUnitId  String
+  avironUnit    AvironUnit @relation(fields: [avironUnitId], references: [id])
+  missionId     String?
+  mission       Mission?   @relation(fields: [missionId], references: [id])
+  type          String     @default("HUMAN") // HUMAN, THERMAL_HOTSPOT, OBSTACLE, HAZARD
+  confidence    Float
+  lat           Float
+  lng           Float
+  imageFrameUrl String?
+  isConfirmed   Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  
+  survivors     Survivor[]
+}
+
+model Survivor {
+  id           String    @id @default(uuid())
+  code         String    @unique // e.g. SURVIVOR #001
+  detectionId  String?
+  detection    Detection? @relation(fields: [detectionId], references: [id])
+  missionId    String
+  mission      Mission   @relation(fields: [missionId], references: [id])
+  status       String    @default("DETECTED") // DETECTED, ASSISTANCE_REQUESTED, PAYLOAD_SENT, ASSISTED, RESOLVED
+  heartRate    Int       @default(82)
+  spO2         Int       @default(97)
+  temperature  Float     @default(36.8)
+  lat          Float
+  lng          Float
+  notes        String?
+  createdAt    DateTime  @default(now())
+  
+  assessments  MedicalAssessment[]
+}
+
+model MedicalAssessment {
+  id          String   @id @default(uuid())
+  survivorId  String
+  survivor    Survivor @relation(fields: [survivorId], references: [id], onDelete: Cascade)
+  triageLevel String   @default("YELLOW") // RED, YELLOW, GREEN, BLACK
+  heartRate   Int
+  spO2        Int
+  temperature Float
+  notes       String
+  assessedAt  DateTime @default(now())
+}
+
+model Payload {
+  id           String    @id @default(uuid())
+  avironUnitId String?
+  avironUnit   AvironUnit? @relation(fields: [avironUnitId], references: [id])
+  missionId    String?
+  mission      Mission?  @relation(fields: [missionId], references: [id])
+  name         String
+  type         String    // MEDICAL_KIT, FIRST_AID, EMERGENCY_SUPPLIES, COMM_DEVICE
+  status       String    @default("READY") // READY, LOADED, DEPLOYING, DELIVERED
+  deployedAt   DateTime?
+}
+
+model Alert {
+  id             String   @id @default(uuid())
+  avironUnitId   String?
+  avironUnit     AvironUnit? @relation(fields: [avironUnitId], references: [id])
+  missionId      String?
+  mission        Mission?  @relation(fields: [missionId], references: [id])
+  severity       String   // INFO, WARNING, HIGH, CRITICAL
+  title          String
+  message        String
+  isAcknowledged Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model CommunicationMessage {
+  id           String   @id @default(uuid())
+  avironUnitId String?
+  avironUnit   AvironUnit? @relation(fields: [avironUnitId], references: [id])
+  sender       String   // OPERATOR, AVIRON, SYSTEM
+  message      String
+  channel      String   @default("PRIMARY_RADIO")
+  timestamp    DateTime @default(now())
+}
+
+model MissionEvent {
+  id          String   @id @default(uuid())
+  missionId   String
+  mission     Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  eventType   String
+  description String
+  payload     String?
+  timestamp   DateTime @default(now())
+}
+
+model MissionReport {
+  id              String   @id @default(uuid())
+  missionId       String
+  mission         Mission  @relation(fields: [missionId], references: [id])
+  title           String
+  operatorName    String
+  startTime       DateTime
+  endTime         DateTime?
+  durationMinutes Int      @default(0)
+  distanceKm      Float    @default(0.0)
+  survivorsFound  Int      @default(0)
+  batteryUsed     Float    @default(0.0)
+  summary         String
+  createdAt       DateTime @default(now())
+}
+
+model SystemComponent {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String   // HARDWARE, SENSOR, NETWORK, CAMERA, NAVIGATION
+  status    String   @default("ONLINE") // ONLINE, DEGRADED, OFFLINE
+  details   String?
+  lastCheck DateTime @default(now())
+}
+
+model ConnectionLog {
+  id           String   @id @default(uuid())
+  avironUnitId String?
+  avironUnit   AvironUnit? @relation(fields: [avironUnitId], references: [id])
+  event        String
+  ipAddress    String?
+  status       String
+  timestamp    DateTime @default(now())
+}

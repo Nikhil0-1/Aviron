@@ -1,0 +1,12 @@
+{
+  "name": "aviron-rescue-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AVIRON - Autonomous Rescue, Observation & Intelligent Response Network",
+  "scripts": {
+    "setup": "cd backend && cmd /c npm install && cmd /c npx prisma db push && cmd /c npx prisma db seed && cd ../frontend && cmd /c npm install",
+    "dev:backend": "cd backend && cmd /c npm run dev",
+    "dev:frontend": "cd frontend && cmd /c npm run dev",
+    "build": "cd backend && cmd /c npm run build && cd ../frontend && cmd /c npm run build"
+  }
+}
