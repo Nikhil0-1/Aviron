@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DemoControllerBar } from './components/dashboard/DemoControllerBar';
+import { MobileNav } from './components/layout/MobileNav';
 import { PublicLandingView } from './views/PublicLandingView';
 import { VictimPanelView } from './views/VictimPanelView';
 import { RescueTeamPanelView } from './views/RescueTeamPanelView';
@@ -26,8 +27,11 @@ export const App: React.FC = () => {
         {currentPanel === 'ADMIN' && <AdminPanelView onNavigatePanel={setCurrentPanel} />}
       </main>
 
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileNav currentPanel={currentPanel} onNavigatePanel={setCurrentPanel} />
+
       {/* Real-Time Cross-Panel Notification Toasts Overlay */}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm pointer-events-auto">
+      <div className="fixed bottom-14 sm:bottom-4 right-4 z-50 space-y-2 max-w-xs sm:max-w-sm pointer-events-auto">
         {activeToasts.map((toast) => (
           <div
             key={toast.id}

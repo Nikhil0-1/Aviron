@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Cpu, Users, ShieldCheck, AlertTriangle, Radio, Activity, Database, Cloud, Flame, Settings, FileText, CheckCircle2, UserCheck, Plus, Search, Filter, RefreshCw, BarChart2 } from 'lucide-react';
-import { useAuthStore, DEMO_USERS } from '../store/useAuthStore';
+import { Cpu, Users, ShieldCheck, AlertTriangle, Radio, Activity, Database, Cloud, Flame, Settings, FileText, CheckCircle2, UserCheck, Plus, Search, Filter, RefreshCw, BarChart2, X, Lock, Eye, Edit3, ShieldAlert } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 import { useEmergencyStore } from '../store/useEmergencyStore';
 import { useTeamStore } from '../store/useTeamStore';
 import { useAvironStore } from '../store/useAvironStore';
@@ -16,12 +16,43 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
   const { user, switchRole } = useAuthStore();
   const { requests, assignTeamAndAviron, updateRequestStatus } = useEmergencyStore();
   const { teams, members, addTeam } = useTeamStore();
-  const { units, updateUnit, setMode, mode, raspberryPiConfig, setRaspberryPiConfig } = useAvironStore();
-  const { notifications } = useNotificationStore();
+  const { units, setMode, mode, raspberryPiConfig, setRaspberryPiConfig } = useAvironStore();
+  const { addNotification } = useNotificationStore();
 
   const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'MAP' | 'USERS' | 'TEAMS' | 'AVIRON' | 'EMERGENCIES' | 'REPORTS' | 'SETTINGS'>('DASHBOARD');
 
-  // User Management State
+  // Role Access Guard Check
+  if (user?.role !== 'ADMIN' && user?.role !== 'VIEWER') {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
+        <div className="bg-slate-950 p-8 rounded-3xl border border-rose-800 text-center max-w-md space-y-4 shadow-2xl">
+          <div className="w-16 h-16 rounded-2xl bg-rose-950 text-rose-500 border border-rose-800 flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-white">Admin Access Restricted</h2>
+          <p className="text-xs text-slate-400">
+            You are logged in as <span className="text-rose-400 font-bold">{user?.name} ({user?.role})</span>. Only administrators can access this system management panel.
+          </p>
+          <div className="pt-2 flex flex-col space-y-2">
+            <button
+              onClick={() => switchRole('ADMIN')}
+              className="py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl"
+            >
+              Switch Role to System Admin
+            </button>
+            <button
+              onClick={() => onNavigatePanel('TEAM')}
+              className="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl"
+            >
+              Return to Rescue Team Panel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Users List State
   const [usersList, setUsersList] = useState([
     { id: 'usr-admin-01', name: 'Cmdr. Helena Vance', email: 'admin@aviron.io', role: 'ADMIN' as Role, status: 'ACTIVE', lastActive: '2 min ago', created: '2026-01-15' },
     { id: 'usr-team-lead-01', name: 'Capt. Rahul Sharma', email: 'rahul.sharma@aviron.io', role: 'TEAM_LEADER' as Role, status: 'ACTIVE', lastActive: '5 min ago', created: '2026-02-01' },
@@ -42,6 +73,9 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
   const [newTeamName, setNewTeamName] = useState('Team Delta');
   const [newTeamLeader, setNewTeamLeader] = useState('Arjun Nair');
 
+  // Emergency Detail Drawer Modal
+  const [selectedEmergency, setSelectedEmergency] = useState<any | null>(null);
+
   const handleRegisterUnit = (e: React.FormEvent) => {
     e.preventDefault();
     const newUnit = {
@@ -61,12 +95,19 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
     };
     useAvironStore.getState().setUnits([...units, newUnit]);
     setShowAddUnitModal(false);
+
+    addNotification({
+      targetRole: 'ADMIN',
+      type: 'SYSTEM',
+      title: '🤖 NEW AVIRON UNIT REGISTERED',
+      message: `Unit ${newUnitCode} registered into fleet roster.`,
+    });
   };
 
   const handleRegisterTeam = (e: React.FormEvent) => {
     e.preventDefault();
     addTeam({
-      code: `TEAM-${teams.length + 1}`,
+      code: `TEAM-0${teams.length + 1}`,
       name: newTeamName,
       leaderId: `usr-lead-${Date.now()}`,
       leaderName: newTeamLeader,
@@ -74,6 +115,13 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
       memberCount: 3,
     });
     setShowAddTeamModal(false);
+
+    addNotification({
+      targetRole: 'ADMIN',
+      type: 'SYSTEM',
+      title: '🚨 NEW RESCUE TEAM CREATED',
+      message: `${newTeamName} created with leader ${newTeamLeader}.`,
+    });
   };
 
   const handleChangeRole = (userId: string, newRole: Role) => {
@@ -85,11 +133,11 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-16">
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20">
       {/* Top Header */}
       <div className="bg-slate-950 border-b border-slate-800 px-4 py-3 sticky top-[41px] z-30 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md">
             <Cpu className="w-5 h-5" />
           </div>
           <div>
@@ -98,14 +146,14 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
           </div>
         </div>
 
-        {/* Tab Navigation Bar */}
-        <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto">
+        {/* Tab Navigation Bar (Scrollable on mobile) */}
+        <div className="hidden sm:flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
           {[
             { id: 'DASHBOARD', label: 'Dashboard' },
             { id: 'MAP', label: 'Live Map' },
             { id: 'USERS', label: 'Users' },
             { id: 'TEAMS', label: 'Teams' },
-            { id: 'AVIRON', label: 'AVIRON Fleet' },
+            { id: 'AVIRON', label: 'Fleet' },
             { id: 'EMERGENCIES', label: 'Emergencies' },
             { id: 'REPORTS', label: 'Reports' },
             { id: 'SETTINGS', label: 'Settings' },
@@ -128,7 +176,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
         {activeTab === 'DASHBOARD' && (
           <div className="space-y-6">
             {/* System KPIs Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4">
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">TOTAL AVIRON</span>
                 <p className="text-2xl font-black text-cyan-400 mt-1">12</p>
@@ -143,7 +191,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
               </div>
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">OPEN EMERGENCIES</span>
-                <p className="text-2xl font-black text-rose-400 mt-1">06</p>
+                <p className="text-2xl font-black text-rose-400 mt-1">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
               </div>
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SURVIVORS ASSISTED</span>
@@ -156,14 +204,14 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
             </div>
 
             {/* Global System Map */}
-            <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800">
+            <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
                 <span className="text-xs font-mono font-bold text-indigo-400">GLOBAL INCIDENT & FLEET MONITOR</span>
                 <button onClick={() => setActiveTab('MAP')} className="text-xs text-indigo-400 font-bold hover:underline">
                   Full Screen Map →
                 </button>
               </div>
-              <div className="h-[400px] rounded-2xl overflow-hidden border border-slate-800">
+              <div className="h-[360px] sm:h-[460px] rounded-2xl overflow-hidden border border-slate-800">
                 <LiveMap />
               </div>
             </div>
@@ -172,16 +220,16 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
 
         {/* TAB 2: LIVE MAP */}
         {activeTab === 'MAP' && (
-          <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800 space-y-4">
+          <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800 space-y-4 shadow-xl">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-xs font-mono font-bold text-indigo-400">ADMIN LIVE VECTOR MAP (ALL LAYERS)</span>
-              <div className="flex space-x-2 text-xs font-mono">
+              <div className="hidden sm:flex space-x-2 text-xs font-mono">
                 <span className="px-2 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800 rounded">AVIRON UNITS</span>
                 <span className="px-2 py-1 bg-teal-950 text-teal-400 border border-teal-800 rounded">RESCUE TEAMS</span>
                 <span className="px-2 py-1 bg-rose-950 text-rose-400 border border-rose-800 rounded">VICTIMS</span>
               </div>
             </div>
-            <div className="h-[600px] rounded-2xl overflow-hidden border border-slate-800">
+            <div className="h-[520px] sm:h-[620px] rounded-2xl overflow-hidden border border-slate-800">
               <LiveMap />
             </div>
           </div>
@@ -189,16 +237,16 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
 
         {/* TAB 3: USER MANAGEMENT */}
         {activeTab === 'USERS' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
                 <h2 className="text-lg font-black text-white">System User Management</h2>
-                <p className="text-xs text-slate-400">Manage user accounts, roles and system authorizations</p>
+                <p className="text-xs text-slate-400">Manage user accounts, roles and authorizations</p>
               </div>
             </div>
 
-            {/* Users Table */}
-            <div className="overflow-x-auto">
+            {/* Responsive Table / Cards Grid */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-300 font-sans">
                 <thead className="bg-slate-900 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
                   <tr>
@@ -253,27 +301,59 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Cards View */}
+            <div className="md:hidden space-y-3">
+              {usersList.map((u) => (
+                <div key={u.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span className="font-extrabold text-white">{u.name}</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">{u.status}</span>
+                  </div>
+                  <div className="text-slate-400 font-mono text-[11px]">{u.email}</div>
+                  <div className="flex items-center justify-between pt-1">
+                    <select
+                      value={u.role}
+                      onChange={(e) => handleChangeRole(u.id, e.target.value as Role)}
+                      className="bg-slate-950 border border-slate-700 text-indigo-300 font-bold rounded px-2 py-1 text-xs"
+                    >
+                      <option value="ADMIN">ADMIN</option>
+                      <option value="TEAM_LEADER">TEAM LEADER</option>
+                      <option value="RESCUE_OPERATOR">RESCUE OPERATOR</option>
+                      <option value="MEDICAL_OPERATOR">MEDICAL OPERATOR</option>
+                      <option value="VICTIM">VICTIM</option>
+                    </select>
+                    <button
+                      onClick={() => handleToggleUserStatus(u.id)}
+                      className="px-3 py-1 rounded bg-slate-800 text-rose-400 font-bold text-xs"
+                    >
+                      {u.status === 'ACTIVE' ? 'Disable' : 'Activate'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* TAB 4: TEAM MANAGEMENT */}
         {activeTab === 'TEAMS' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
-                <h2 className="text-lg font-black text-white">Rescue Team Management</h2>
-                <p className="text-xs text-slate-400">Create teams, assign leaders, configure operational status</p>
+                <h2 className="text-lg font-black text-white">Rescue Team Roster</h2>
+                <p className="text-xs text-slate-400">Configure teams, leadership and operational availability</p>
               </div>
               <button
                 onClick={() => setShowAddTeamModal(true)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-md"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Team</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {teams.map((t) => (
                 <div key={t.id} className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -288,14 +368,15 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
             </div>
 
             {showAddTeamModal && (
-              <form onSubmit={handleRegisterTeam} className="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
+              <form onSubmit={handleRegisterTeam} className="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3 max-w-md">
                 <h3 className="text-sm font-bold text-white">Create New Rescue Team</h3>
                 <input
                   type="text"
-                  placeholder="Team Name"
+                  placeholder="Team Name (e.g. Team Delta)"
                   value={newTeamName}
                   onChange={(e) => setNewTeamName(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                  required
                 />
                 <input
                   type="text"
@@ -303,9 +384,10 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
                   value={newTeamLeader}
                   onChange={(e) => setNewTeamLeader(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                  required
                 />
-                <div className="flex justify-end space-x-2">
-                  <button type="button" onClick={() => setShowAddTeamModal(false)} className="px-3 py-1.5 bg-slate-800 text-xs font-bold rounded-lg">Cancel</button>
+                <div className="flex justify-end space-x-2 pt-2">
+                  <button type="button" onClick={() => setShowAddTeamModal(false)} className="px-3 py-1.5 bg-slate-800 text-xs font-bold rounded-lg text-slate-300">Cancel</button>
                   <button type="submit" className="px-4 py-1.5 bg-indigo-600 text-xs font-bold text-white rounded-lg">Save Team</button>
                 </div>
               </form>
@@ -315,22 +397,22 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
 
         {/* TAB 5: AVIRON FLEET MANAGEMENT */}
         {activeTab === 'AVIRON' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
-                <h2 className="text-lg font-black text-white">AVIRON Autonomous Fleet Management</h2>
-                <p className="text-xs text-slate-400">Register new units, check Raspberry Pi IDs, monitor battery & connectivity</p>
+                <h2 className="text-lg font-black text-white">AVIRON Fleet Roster</h2>
+                <p className="text-xs text-slate-400">Register autonomous units and Raspberry Pi hardware IDs</p>
               </div>
               <button
                 onClick={() => setShowAddUnitModal(true)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-md"
               >
                 <Plus className="w-4 h-4" />
-                <span>Register AVIRON Unit</span>
+                <span>Register Unit</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {units.map((u) => (
                 <div key={u.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -349,13 +431,13 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
             </div>
 
             {showAddUnitModal && (
-              <form onSubmit={handleRegisterUnit} className="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3">
+              <form onSubmit={handleRegisterUnit} className="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-3 max-w-md">
                 <h3 className="text-sm font-bold text-white">Register AVIRON Autonomous Unit</h3>
-                <input type="text" placeholder="Unit Code (e.g. AVIRON-05)" value={newUnitCode} onChange={(e) => setNewUnitCode(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" />
-                <input type="text" placeholder="Unit Name" value={newUnitName} onChange={(e) => setNewUnitName(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" />
-                <input type="text" placeholder="Raspberry Pi ID" value={newUnitPiId} onChange={(e) => setNewUnitPiId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" />
-                <div className="flex justify-end space-x-2">
-                  <button type="button" onClick={() => setShowAddUnitModal(false)} className="px-3 py-1.5 bg-slate-800 text-xs font-bold rounded-lg">Cancel</button>
+                <input type="text" placeholder="Unit Code (e.g. AVIRON-05)" value={newUnitCode} onChange={(e) => setNewUnitCode(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" required />
+                <input type="text" placeholder="Unit Name" value={newUnitName} onChange={(e) => setNewUnitName(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" required />
+                <input type="text" placeholder="Raspberry Pi Hardware ID" value={newUnitPiId} onChange={(e) => setNewUnitPiId(e.target.value)} className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" required />
+                <div className="flex justify-end space-x-2 pt-2">
+                  <button type="button" onClick={() => setShowAddUnitModal(false)} className="px-3 py-1.5 bg-slate-800 text-xs font-bold rounded-lg text-slate-300">Cancel</button>
                   <button type="submit" className="px-4 py-1.5 bg-indigo-600 text-xs font-bold text-white rounded-lg">Save Unit</button>
                 </div>
               </form>
@@ -365,15 +447,16 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
 
         {/* TAB 6: EMERGENCY REQUESTS MANAGEMENT */}
         {activeTab === 'EMERGENCIES' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
-                <h2 className="text-lg font-black text-white">All Emergency Requests</h2>
-                <p className="text-xs text-slate-400">Monitor and override emergency request status across system</p>
+                <h2 className="text-lg font-black text-white">Emergency Assistance Queue</h2>
+                <p className="text-xs text-slate-400">Monitor and override emergency status across system</p>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Responsive Table / Mobile Cards */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-300 font-sans">
                 <thead className="bg-slate-900 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
                   <tr>
@@ -399,16 +482,16 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
                       <td className="p-3 font-mono text-emerald-400 font-bold">{r.status}</td>
                       <td className="p-3 text-right space-x-1">
                         <button
+                          onClick={() => setSelectedEmergency(r)}
+                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-[10px]"
+                        >
+                          View Detail
+                        </button>
+                        <button
                           onClick={() => assignTeamAndAviron(r.id, 'team-alpha', 'Team Alpha', 'unit-01', 'AVIRON-01')}
                           className="px-2.5 py-1 bg-indigo-900 hover:bg-indigo-800 text-white font-bold rounded text-[10px]"
                         >
-                          Assign Team Alpha
-                        </button>
-                        <button
-                          onClick={() => updateRequestStatus(r.id, 'RESOLVED')}
-                          className="px-2.5 py-1 bg-emerald-900 hover:bg-emerald-800 text-white font-bold rounded text-[10px]"
-                        >
-                          Resolve
+                          Assign Team
                         </button>
                       </td>
                     </tr>
@@ -416,21 +499,44 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile View Cards */}
+            <div className="md:hidden space-y-3">
+              {requests.map((r) => (
+                <div key={r.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                  <div className="flex justify-between font-mono">
+                    <span className="font-bold text-cyan-400">{r.requestCode}</span>
+                    <span className="text-rose-400 font-extrabold">{r.priority}</span>
+                  </div>
+                  <div className="font-bold text-white">{r.victimName} — {r.type}</div>
+                  <div className="text-slate-400">{r.locationName}</div>
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-800">
+                    <span className="text-emerald-400 font-mono text-[10px]">{r.status}</span>
+                    <button
+                      onClick={() => assignTeamAndAviron(r.id, 'team-alpha', 'Team Alpha', 'unit-01', 'AVIRON-01')}
+                      className="px-3 py-1 bg-indigo-600 text-white font-bold rounded"
+                    >
+                      Assign Team Alpha
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* TAB 7: ADMIN REPORTING */}
         {activeTab === 'REPORTS' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
                 <h2 className="text-lg font-black text-white">Mission Performance Reports</h2>
-                <p className="text-xs text-slate-400">Automated analytical reports for resolved rescue operations</p>
+                <p className="text-xs text-slate-400">Post-rescue operational analytics and summaries</p>
               </div>
             </div>
 
             <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
                 <div>
                   <h3 className="font-extrabold text-white text-sm">REPORT #REP-2026-001 — FLOOD RESCUE SECTOR 4</h3>
                   <p className="text-xs text-slate-400">Operator: Capt. Rahul Sharma | Date: {new Date().toLocaleDateString()}</p>
@@ -459,10 +565,10 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
 
         {/* TAB 8: SYSTEM SETTINGS */}
         {activeTab === 'SETTINGS' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-6 shadow-xl">
             <div>
-              <h2 className="text-lg font-black text-white">System Infrastructure Settings</h2>
-              <p className="text-xs text-slate-400">Configure Raspberry Pi IoT HAL, Cloudflare R2, and Supabase RLS policies</p>
+              <h2 className="text-lg font-black text-white">Infrastructure Settings</h2>
+              <p className="text-xs text-slate-400">Configure Raspberry Pi IoT HAL, Cloudflare R2, and Supabase database settings</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,7 +616,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
                 <div className="space-y-2 text-xs">
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between">
                     <span className="text-slate-400">Firebase Auth</span>
-                    <span className="text-emerald-400 font-bold">ACTIVE</span>
+                    <span className="text-emerald-400 font-bold">CONNECTED</span>
                   </div>
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between">
                     <span className="text-slate-400">Supabase RLS & PostgreSQL</span>
@@ -526,6 +632,36 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
           </div>
         )}
       </div>
+
+      {/* Emergency Detail Modal Drawer */}
+      {selectedEmergency && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-slate-900 text-white rounded-3xl p-6 max-w-md w-full border border-slate-800 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <span className="font-mono text-cyan-400 font-bold text-xs">{selectedEmergency.requestCode}</span>
+              <button onClick={() => setSelectedEmergency(null)} className="p-1 text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2 text-xs">
+              <p><span className="text-slate-400">Victim Name:</span> <span className="font-bold text-white">{selectedEmergency.victimName}</span></p>
+              <p><span className="text-slate-400">Type:</span> <span className="font-bold text-rose-400">{selectedEmergency.type}</span></p>
+              <p><span className="text-slate-400">Location:</span> {selectedEmergency.locationName}</p>
+              <p><span className="text-slate-400">Condition:</span> {selectedEmergency.condition}</p>
+              <p><span className="text-slate-400">Status:</span> <span className="text-emerald-400 font-bold font-mono">{selectedEmergency.status}</span></p>
+            </div>
+            <button
+              onClick={() => {
+                assignTeamAndAviron(selectedEmergency.id, 'team-alpha', 'Team Alpha', 'unit-01', 'AVIRON-01');
+                setSelectedEmergency(null);
+              }}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white rounded-xl"
+            >
+              Assign Team Alpha & Deploy AVIRON-01
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

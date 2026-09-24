@@ -190,7 +190,8 @@ export const CommandCenterView: React.FC = () => {
 
       {/* Mobile Bottom Navigation */}
       <MobileNav
-        currentTab={currentTab}
+        currentPanel="TEAM"
+        activeTab={currentTab}
         onTabChange={(tab) => setCurrentTab(tab)}
         onPause={() => engine.pause()}
         onReturnBase={() => engine.reset()}
