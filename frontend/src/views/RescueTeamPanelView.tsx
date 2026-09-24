@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ShieldAlert, Play, Pause, RotateCcw, Send, CheckCircle2, AlertTriangle, Radio, Navigation, Users, MessageSquare, Video, Activity, MapPin, Eye, Zap, Flame } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useEmergencyStore } from '../store/useEmergencyStore';
@@ -14,13 +15,33 @@ interface RescueTeamPanelViewProps {
 }
 
 export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavigatePanel }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { user } = useAuthStore();
   const { requests, updateRequestStatus, assignTeamAndAviron, setActiveRequestId } = useEmergencyStore();
   const { teams, members, chatMessages, addChatMessage } = useTeamStore();
   const { units, selectedUnitId, updateUnit } = useAvironStore();
   const { addNotification } = useNotificationStore();
 
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'QUEUE' | 'LIVE_OPS' | 'MEMBERS' | 'CHAT'>('DASHBOARD');
+  const getTabFromPath = (path: string) => {
+    if (path.includes('/missions') || path.includes('/queue')) return 'QUEUE';
+    if (path.includes('/live')) return 'LIVE_OPS';
+    if (path.includes('/members')) return 'MEMBERS';
+    if (path.includes('/chat')) return 'CHAT';
+    return 'DASHBOARD';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'DASHBOARD') navigate('/team');
+    else if (tabId === 'QUEUE' || tabId === 'MISSIONS') navigate('/team/missions');
+    else if (tabId === 'LIVE_OPS' || tabId === 'LIVE') navigate('/team/live');
+    else if (tabId === 'MEMBERS') navigate('/team/members');
+    else if (tabId === 'CHAT') navigate('/team/chat');
+  };
+
   const [queueFilter, setQueueFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH' | 'MEDIUM'>('ALL');
   const [chatChannel, setChatChannel] = useState<'MISSION' | 'TEAM' | 'EMERGENCY'>('EMERGENCY');
   const [chatInput, setChatInput] = useState('');
@@ -51,7 +72,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
     });
 
     simEngine.start();
-    setActiveTab('LIVE_OPS');
+    handleTabChange('LIVE_OPS');
   };
 
   const handleSendTeamChat = (e: React.FormEvent) => {
@@ -92,7 +113,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             </div>
 
             <button
-              onClick={() => setActiveTab('LIVE_OPS')}
+              onClick={() => handleTabChange('LIVE_OPS')}
               className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-[11px] rounded-xl shadow-sm shrink-0 flex items-center space-x-1"
             >
               <Navigation className="w-3.5 h-3.5" />
@@ -103,7 +124,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
           {/* Scrollable Tab Bar */}
           <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto no-scrollbar max-w-full min-w-0 flex-nowrap">
             <button
-              onClick={() => setActiveTab('DASHBOARD')}
+              onClick={() => handleTabChange('DASHBOARD')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'DASHBOARD' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -111,7 +132,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
               Dashboard
             </button>
             <button
-              onClick={() => setActiveTab('QUEUE')}
+              onClick={() => handleTabChange('QUEUE')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'QUEUE' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -119,7 +140,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
               Queue ({requests.filter((r) => r.status === 'NEW').length})
             </button>
             <button
-              onClick={() => setActiveTab('LIVE_OPS')}
+              onClick={() => handleTabChange('LIVE_OPS')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'LIVE_OPS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -127,7 +148,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
               Live Ops
             </button>
             <button
-              onClick={() => setActiveTab('MEMBERS')}
+              onClick={() => handleTabChange('MEMBERS')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'MEMBERS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -135,7 +156,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
               Roster
             </button>
             <button
-              onClick={() => setActiveTab('CHAT')}
+              onClick={() => handleTabChange('CHAT')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'CHAT' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -152,23 +173,38 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
           <div className="space-y-4 min-w-0">
             {/* KPI Cards Grid (2 cols on mobile, 5 cols on desktop) */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-4 min-w-0">
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+              <div
+                onClick={() => handleTabChange('QUEUE')}
+                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+              >
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ACTIVE INCIDENTS</span>
                 <p className="text-xl sm:text-2xl font-black text-rose-400 mt-0.5">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
               </div>
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+              <div
+                onClick={() => handleTabChange('LIVE_OPS')}
+                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+              >
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">AVIRON UNITS</span>
                 <p className="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5">{units.length}</p>
               </div>
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+              <div
+                onClick={() => handleTabChange('QUEUE')}
+                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+              >
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ASSIGNED MISSIONS</span>
                 <p className="text-xl sm:text-2xl font-black text-teal-400 mt-0.5">{requests.filter((r) => r.assignedTeamId === 'team-alpha').length}</p>
               </div>
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+              <div
+                onClick={() => handleTabChange('DASHBOARD')}
+                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+              >
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">SURVIVORS ASSISTED</span>
                 <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">12</p>
               </div>
-              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0 col-span-2 md:col-span-1">
+              <div
+                onClick={() => handleTabChange('MEMBERS')}
+                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 col-span-2 md:col-span-1"
+              >
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">TEAM STATUS</span>
                 <p className="text-base sm:text-lg font-black text-amber-400 mt-0.5">ON MISSION</p>
               </div>
@@ -178,7 +214,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             <div className="bg-slate-950 rounded-3xl p-3 sm:p-4 border border-slate-800 shadow-xl min-w-0">
               <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-3 min-w-0">
                 <span className="text-xs font-mono font-bold text-cyan-400 truncate">TACTICAL MAP DISPLAY</span>
-                <button onClick={() => setActiveTab('LIVE_OPS')} className="text-[11px] text-teal-400 font-bold hover:underline shrink-0">
+                <button onClick={() => handleTabChange('LIVE_OPS')} className="text-[11px] text-teal-400 font-bold hover:underline shrink-0">
                   Full Controls →
                 </button>
               </div>

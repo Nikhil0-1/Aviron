@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Cpu, Users, ShieldCheck, AlertTriangle, Radio, Activity, Database, Cloud, Flame, Settings, FileText, CheckCircle2, UserCheck, Plus, Search, Filter, RefreshCw, BarChart2, X, Lock, Eye, Edit3, ShieldAlert } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useEmergencyStore } from '../store/useEmergencyStore';
@@ -13,13 +14,38 @@ interface AdminPanelViewProps {
 }
 
 export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { user, switchRole } = useAuthStore();
   const { requests, assignTeamAndAviron, updateRequestStatus } = useEmergencyStore();
   const { teams, members, addTeam } = useTeamStore();
   const { units, setMode, mode, raspberryPiConfig, setRaspberryPiConfig } = useAvironStore();
   const { addNotification } = useNotificationStore();
 
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'MAP' | 'USERS' | 'TEAMS' | 'AVIRON' | 'EMERGENCIES' | 'REPORTS' | 'SETTINGS'>('DASHBOARD');
+  const getTabFromPath = (path: string) => {
+    if (path.includes('/map')) return 'MAP';
+    if (path.includes('/users')) return 'USERS';
+    if (path.includes('/teams')) return 'TEAMS';
+    if (path.includes('/fleet') || path.includes('/aviron')) return 'AVIRON';
+    if (path.includes('/emergencies')) return 'EMERGENCIES';
+    if (path.includes('/reports')) return 'REPORTS';
+    if (path.includes('/settings')) return 'SETTINGS';
+    return 'DASHBOARD';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'DASHBOARD') navigate('/admin');
+    else if (tabId === 'MAP') navigate('/admin/map');
+    else if (tabId === 'USERS') navigate('/admin/users');
+    else if (tabId === 'TEAMS') navigate('/admin/teams');
+    else if (tabId === 'AVIRON' || tabId === 'FLEET') navigate('/admin/fleet');
+    else if (tabId === 'EMERGENCIES') navigate('/admin/emergencies');
+    else if (tabId === 'REPORTS') navigate('/admin/reports');
+    else if (tabId === 'SETTINGS') navigate('/admin/settings');
+  };
 
   // Role Access Guard Check
   if (user?.role !== 'ADMIN' && user?.role !== 'VIEWER') {
@@ -160,7 +186,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
           ].map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
+              onClick={() => handleTabChange(t.id)}
               className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === t.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
@@ -177,27 +203,45 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
           <div className="space-y-6">
             {/* System KPIs Grid */}
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4">
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('AVIRON')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">TOTAL AVIRON</span>
                 <p className="text-2xl font-black text-cyan-400 mt-1">12</p>
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('EMERGENCIES')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE MISSIONS</span>
                 <p className="text-2xl font-black text-emerald-400 mt-1">04</p>
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('TEAMS')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE TEAMS</span>
                 <p className="text-2xl font-black text-indigo-400 mt-1">08</p>
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('EMERGENCIES')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">OPEN EMERGENCIES</span>
                 <p className="text-2xl font-black text-rose-400 mt-1">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('REPORTS')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SURVIVORS ASSISTED</span>
                 <p className="text-2xl font-black text-teal-400 mt-1">124</p>
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div
+                onClick={() => handleTabChange('SETTINGS')}
+                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+              >
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SYSTEM HEALTH</span>
                 <p className="text-2xl font-black text-emerald-400 mt-1">98%</p>
               </div>
@@ -207,7 +251,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
             <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
                 <span className="text-xs font-mono font-bold text-indigo-400">GLOBAL INCIDENT & FLEET MONITOR</span>
-                <button onClick={() => setActiveTab('MAP')} className="text-xs text-indigo-400 font-bold hover:underline">
+                <button onClick={() => handleTabChange('MAP')} className="text-xs text-indigo-400 font-bold hover:underline">
                   Full Screen Map →
                 </button>
               </div>

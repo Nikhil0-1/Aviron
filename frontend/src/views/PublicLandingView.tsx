@@ -240,7 +240,10 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ onNavigate
                 className="text-3xl sm:text-5xl lg:text-6xl font-black text-navy-950 tracking-tight leading-tight"
               >
                 AVIRON <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600">
+                <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-cyan-600 block mt-1">
+                  Autonomous Virtual Innovative Rescue for Operations in Natural-disasters
+                </span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600 text-lg sm:text-2xl block mt-2 font-bold">
                   Autonomous Intelligence. Rapid Response. Human Assistance.
                 </span>
               </motion.h1>

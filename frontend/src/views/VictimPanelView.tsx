@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HeartHandshake, MapPin, Send, AlertTriangle, ShieldCheck, PhoneCall, Upload, MessageSquare, CheckCircle2, Clock, Navigation, Activity, Image as ImageIcon, FileText } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useEmergencyStore } from '../store/useEmergencyStore';
@@ -11,6 +12,9 @@ interface VictimPanelViewProps {
 }
 
 export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePanel }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { user } = useAuthStore();
   const { requests, activeRequestId, addRequest, addMediaToRequest } = useEmergencyStore();
   const { chatMessages, addChatMessage } = useTeamStore();
@@ -18,7 +22,25 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
 
   const activeRequest = requests.find((r) => r.id === activeRequestId) || requests[0];
 
-  const [activeTab, setActiveTab] = useState<'HOME' | 'WIZARD' | 'STATUS' | 'CHAT' | 'MEDIA'>('HOME');
+  const getTabFromPath = (path: string) => {
+    if (path.includes('/status')) return 'STATUS';
+    if (path.includes('/map') || path.includes('/wizard')) return 'WIZARD';
+    if (path.includes('/chat')) return 'CHAT';
+    if (path.includes('/uploads') || path.includes('/media')) return 'MEDIA';
+    if (path.includes('/more')) return 'STATUS';
+    return 'HOME';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'HOME') navigate('/victim');
+    else if (tabId === 'STATUS') navigate('/victim/status');
+    else if (tabId === 'WIZARD' || tabId === 'MAP') navigate('/victim/map');
+    else if (tabId === 'CHAT') navigate('/victim/chat');
+    else if (tabId === 'MEDIA' || tabId === 'UPLOADS') navigate('/victim/uploads');
+    else if (tabId === 'MORE') navigate('/victim/more');
+  };
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState(1);
@@ -64,7 +86,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
       message: `Emergency #${newReq.requestCode} created. Requires immediate team assignment.`,
     });
 
-    setActiveTab('STATUS');
+    handleTabChange('STATUS');
     setWizardStep(1);
   };
 
@@ -149,7 +171,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
 
             <button
               onClick={() => {
-                setActiveTab('WIZARD');
+                handleTabChange('WIZARD');
                 setWizardStep(1);
               }}
               className="px-3 py-1.5 bg-rose-600 text-white font-extrabold text-[11px] rounded-xl shadow-sm shrink-0 flex items-center space-x-1"
@@ -162,7 +184,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
           {/* Scrollable Tab Container (Scrolls ONLY inside tabs container, never whole page) */}
           <div className="flex items-center space-x-1 bg-rose-100/60 p-1 rounded-xl overflow-x-auto no-scrollbar max-w-full min-w-0 flex-nowrap text-xs font-bold">
             <button
-              onClick={() => setActiveTab('HOME')}
+              onClick={() => handleTabChange('HOME')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'HOME' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600'
               }`}
@@ -170,7 +192,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
               Home
             </button>
             <button
-              onClick={() => setActiveTab('STATUS')}
+              onClick={() => handleTabChange('STATUS')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'STATUS' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600'
               }`}
@@ -178,7 +200,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
               Live Status
             </button>
             <button
-              onClick={() => setActiveTab('CHAT')}
+              onClick={() => handleTabChange('CHAT')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'CHAT' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600'
               }`}
@@ -186,7 +208,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
               Team Chat
             </button>
             <button
-              onClick={() => setActiveTab('MEDIA')}
+              onClick={() => handleTabChange('MEDIA')}
               className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'MEDIA' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600'
               }`}
@@ -216,7 +238,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
 
               <button
                 onClick={() => {
-                  setActiveTab('WIZARD');
+                  handleTabChange('WIZARD');
                   setWizardStep(1);
                 }}
                 className="w-full min-h-[52px] py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-base shadow-xl shadow-rose-600/30 transition-all flex items-center justify-center space-x-2"
@@ -226,12 +248,12 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
               </button>
 
               <div className="pt-2 border-t border-slate-100 flex items-center justify-around text-xs font-bold text-slate-600">
-                <button onClick={() => setActiveTab('STATUS')} className="hover:text-rose-600 flex items-center space-x-1">
+                <button onClick={() => handleTabChange('STATUS')} className="hover:text-rose-600 flex items-center space-x-1">
                   <Activity className="w-3.5 h-3.5 text-cyan-600" />
                   <span>View Status</span>
                 </button>
                 <span>•</span>
-                <button onClick={() => setActiveTab('CHAT')} className="hover:text-rose-600 flex items-center space-x-1">
+                <button onClick={() => handleTabChange('CHAT')} className="hover:text-rose-600 flex items-center space-x-1">
                   <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
                   <span>Chat With Team</span>
                 </button>
@@ -252,7 +274,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
                   <p className="text-slate-600 truncate">{activeRequest.locationName}</p>
                 </div>
                 <button
-                  onClick={() => setActiveTab('STATUS')}
+                  onClick={() => handleTabChange('STATUS')}
                   className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all"
                 >
                   Track Live Assistance →
@@ -503,7 +525,7 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
               {/* Communication Buttons */}
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setActiveTab('CHAT')}
+                  onClick={() => handleTabChange('CHAT')}
                   className="py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center space-x-1 shadow-md"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />

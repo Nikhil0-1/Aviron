@@ -1,34 +1,57 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { DemoControllerBar } from './components/dashboard/DemoControllerBar';
 import { MobileNav } from './components/layout/MobileNav';
 import { PublicLandingView } from './views/PublicLandingView';
 import { VictimPanelView } from './views/VictimPanelView';
 import { RescueTeamPanelView } from './views/RescueTeamPanelView';
 import { AdminPanelView } from './views/AdminPanelView';
+import { AccessDeniedView } from './views/AccessDeniedView';
 import { useNotificationStore } from './store/useNotificationStore';
 import { X, Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [currentPanel, setCurrentPanel] = useState<'PUBLIC' | 'VICTIM' | 'TEAM' | 'ADMIN'>('PUBLIC');
+  const location = useLocation();
+  const navigate = useNavigate();
   const { notifications, markAsRead } = useNotificationStore();
+
+  let currentPanel: 'PUBLIC' | 'VICTIM' | 'TEAM' | 'ADMIN' = 'PUBLIC';
+  if (location.pathname.startsWith('/admin')) {
+    currentPanel = 'ADMIN';
+  } else if (location.pathname.startsWith('/team')) {
+    currentPanel = 'TEAM';
+  } else if (location.pathname.startsWith('/victim')) {
+    currentPanel = 'VICTIM';
+  }
+
+  const handleNavigatePanel = (panel: 'PUBLIC' | 'VICTIM' | 'TEAM' | 'ADMIN') => {
+    if (panel === 'PUBLIC') navigate('/');
+    else if (panel === 'VICTIM') navigate('/victim');
+    else if (panel === 'TEAM') navigate('/team');
+    else if (panel === 'ADMIN') navigate('/admin');
+  };
 
   const activeToasts = notifications.filter((n) => !n.isRead).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white flex flex-col">
       {/* Universal Top Demo Controller Bar */}
-      <DemoControllerBar currentPanel={currentPanel} onNavigatePanel={setCurrentPanel} />
+      <DemoControllerBar currentPanel={currentPanel} onNavigatePanel={handleNavigatePanel} />
 
       {/* Main Panel View Routing */}
       <main className="flex-1">
-        {currentPanel === 'PUBLIC' && <PublicLandingView onNavigatePanel={setCurrentPanel} />}
-        {currentPanel === 'VICTIM' && <VictimPanelView onNavigatePanel={setCurrentPanel} />}
-        {currentPanel === 'TEAM' && <RescueTeamPanelView onNavigatePanel={setCurrentPanel} />}
-        {currentPanel === 'ADMIN' && <AdminPanelView onNavigatePanel={setCurrentPanel} />}
+        <Routes>
+          <Route path="/" element={<PublicLandingView onNavigatePanel={handleNavigatePanel} />} />
+          <Route path="/victim/*" element={<VictimPanelView onNavigatePanel={handleNavigatePanel} />} />
+          <Route path="/team/*" element={<RescueTeamPanelView onNavigatePanel={handleNavigatePanel} />} />
+          <Route path="/admin/*" element={<AdminPanelView onNavigatePanel={handleNavigatePanel} />} />
+          <Route path="/access-denied" element={<AccessDeniedView />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* Mobile Bottom Navigation Bar */}
-      <MobileNav currentPanel={currentPanel} onNavigatePanel={setCurrentPanel} />
+      <MobileNav currentPanel={currentPanel} onNavigatePanel={handleNavigatePanel} />
 
       {/* Real-Time Cross-Panel Notification Toasts Overlay */}
       <div className="fixed bottom-14 sm:bottom-4 right-4 z-50 space-y-2 max-w-xs sm:max-w-sm pointer-events-auto">
