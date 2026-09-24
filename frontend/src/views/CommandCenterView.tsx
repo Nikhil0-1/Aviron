@@ -66,7 +66,7 @@ export const CommandCenterView: React.FC = () => {
         {/* Center Content View Area */}
         <main className="flex-1 p-3 sm:p-5 overflow-y-auto pb-24 md:pb-8 max-w-[1920px] mx-auto w-full">
           {/* Demo Controller Bar */}
-          {mode === 'DEMO' && <DemoControllerBar />}
+          {mode === 'DEMO' && <DemoControllerBar currentPanel="TEAM" onNavigatePanel={() => {}} />}
 
           {/* TAB 1: OVERVIEW / LIVE OPERATIONS */}
           {(currentTab === 'overview' || currentTab === 'live') && (

@@ -1,4 +1,7 @@
 import { AvironUnit, Telemetry, Detection, Survivor, Alert, MissionEvent } from '../../types';
+import { useEmergencyStore } from '../../store/useEmergencyStore';
+import { useNotificationStore } from '../../store/useNotificationStore';
+import { useAvironStore } from '../../store/useAvironStore';
 
 export interface ScenarioEvent {
   id: string;
@@ -12,6 +15,7 @@ export interface ScenarioEvent {
   detection?: Partial<Detection>;
   survivor?: Partial<Survivor>;
   alert?: Partial<Alert>;
+  emergencyStatusSync?: 'NEW' | 'ACKNOWLEDGED' | 'ASSIGNED' | 'AVIRON_DEPLOYED' | 'EN_ROUTE' | 'ARRIVED' | 'ASSISTANCE_IN_PROGRESS' | 'RESOLVED';
 }
 
 export type SimulationListener = (state: {
@@ -37,7 +41,7 @@ export class DemoSimulationEngine {
 
   // Unit State
   private unit: AvironUnit = {
-    id: 'unit-01-demo',
+    id: 'unit-01',
     code: 'AVIRON-01',
     name: 'Alpha Sentinel (Demo)',
     model: 'AVIRON Mk-IV Amphibious Recon',
@@ -53,7 +57,7 @@ export class DemoSimulationEngine {
 
   // Telemetry State
   private telemetry: Telemetry = {
-    avironUnitId: 'unit-01-demo',
+    avironUnitId: 'unit-01',
     battery: 74.0,
     voltage: 22.8,
     current: 14.5,
@@ -76,65 +80,69 @@ export class DemoSimulationEngine {
     { lat: 28.6139, lng: 77.2090 }, // Base Takeoff
     { lat: 28.6145, lng: 77.2105 }, // En route waypoint 1
     { lat: 28.6148, lng: 77.2112 }, // Obstacle detour
-    { lat: 28.6152, lng: 77.2120 }, // Survivor Location
+    { lat: 28.6152, lng: 77.2120 }, // Victim Location (Sector 4)
     { lat: 28.6158, lng: 77.2132 }, // Search boundary
     { lat: 28.6139, lng: 77.2090 }, // Return Base
   ];
 
   // Demo Events Sequence
-  private scenarioEvents: ScenarioEvent[] = [
+  public scenarioEvents: ScenarioEvent[] = [
     {
       id: 'evt-0',
       stepIndex: 0,
       timeOffsetSec: 0,
-      title: 'MISSION RECEIVED & UNIT ASSIGNED',
-      description: 'AVIRON-01 assigned to Flood Rescue Mission AV-001. System online.',
+      title: 'EMERGENCY REQUEST RECEIVED & UNIT ASSIGNED',
+      description: 'AVIRON-01 assigned to Flood Emergency #ER-2026-001 for Aarav Kumar. System initialized.',
       type: 'INFO',
+      emergencyStatusSync: 'ASSIGNED',
     },
     {
       id: 'evt-1',
       stepIndex: 1,
       timeOffsetSec: 3,
-      title: 'GPS LOCK ESTABLISHED',
-      description: 'Dual RTK GPS locked with 14 satellites. Precision position fix ±0.03m.',
+      title: 'GPS LOCK & DUAL RTK FIX ESTABLISHED',
+      description: 'Dual RTK GPS locked with 16 satellites. Target coordinates fixed at Sector 4 rooftop.',
       type: 'INFO',
+      emergencyStatusSync: 'AVIRON_DEPLOYED',
     },
     {
       id: 'evt-2',
       stepIndex: 2,
       timeOffsetSec: 8,
       title: 'AUTONOMOUS NAVIGATION STARTED',
-      description: 'AVIRON-01 launched from Base. Navigating along flood corridor at 4.8 m/s.',
+      description: 'AVIRON-01 launched from Base Station. Navigating along flood corridor at 4.8 m/s.',
       type: 'INFO',
+      emergencyStatusSync: 'EN_ROUTE',
     },
     {
       id: 'evt-3',
       stepIndex: 3,
       timeOffsetSec: 15,
-      title: 'OBSTACLE DETECTED',
-      description: 'Submerged high-voltage cable structure identified in direct path.',
+      title: 'SUBMERGED OBSTACLE DETECTED',
+      description: 'Submerged high-voltage cable structure identified in direct flight corridor.',
       type: 'WARNING',
       alert: {
         severity: 'WARNING',
         title: 'LIDAR Obstacle Avoidance Engaged',
-        message: 'High-voltage structure identified. Dynamic detour path computed.',
+        message: 'Submerged high-voltage structure identified. Dynamic detour path computed.',
       },
     },
     {
       id: 'evt-4',
       stepIndex: 4,
       timeOffsetSec: 22,
-      title: 'ROUTE RECALCULATED',
-      description: 'Autonomous planner detour applied (+45m buffer). Resuming search trajectory.',
+      title: 'DYNAMIC ROUTE RECALCULATED',
+      description: 'Autonomous planner detour applied (+45m altitude buffer). Resuming search trajectory.',
       type: 'INFO',
     },
     {
       id: 'evt-5',
       stepIndex: 5,
       timeOffsetSec: 30,
-      title: 'SURVIVOR DETECTED',
-      description: 'Human figure detected on submerged structure. AI confidence: 94.2%.',
+      title: 'VICTIM LOCATED BY AI SENSORS',
+      description: 'Human figure detected on rooftop. AI confidence: 94.2%. Victim notified via app.',
       type: 'CRITICAL',
+      emergencyStatusSync: 'ARRIVED',
       detection: {
         type: 'HUMAN',
         confidence: 94.2,
@@ -143,7 +151,7 @@ export class DemoSimulationEngine {
         isConfirmed: true,
       },
       survivor: {
-        code: 'SURVIVOR #001',
+        code: 'SURVIVOR #001 (Aarav Kumar)',
         status: 'ASSISTANCE_REQUESTED',
         heartRate: 88,
         spO2: 96,
@@ -154,24 +162,24 @@ export class DemoSimulationEngine {
       },
       alert: {
         severity: 'HIGH',
-        title: 'HUMAN DETECTED - SURVIVOR #001',
-        message: 'Visual and radiometric FLIR match confirmed survivor location.',
+        title: 'VICTIM LOCATED - AARAV KUMAR',
+        message: 'Visual and radiometric FLIR match confirmed victim location at rooftop.',
       },
     },
     {
       id: 'evt-6',
       stepIndex: 6,
       timeOffsetSec: 38,
-      title: 'THERMAL CONFIRMATION',
-      description: 'FLIR Radiometric Core confirmed 36.9°C body heat signature.',
+      title: 'THERMAL SIGNATURE & TRIAGE CONFIRMED',
+      description: 'FLIR Radiometric Core confirmed 36.9°C body heat signature. Triage level: STABLE.',
       type: 'INFO',
     },
     {
       id: 'evt-7',
       stepIndex: 7,
       timeOffsetSec: 45,
-      title: 'COMMUNICATION ESTABLISHED',
-      description: 'VHF Emergency link active. Audio beacon beaconing instructions to survivor.',
+      title: 'EMERGENCY COMMUNICATOR ACTIVE',
+      description: 'VHF & 5G mesh link active. Audio beacon transmitting safety instructions to victim.',
       type: 'INFO',
     },
     {
@@ -179,25 +187,27 @@ export class DemoSimulationEngine {
       stepIndex: 8,
       timeOffsetSec: 52,
       title: 'MEDICAL PAYLOAD DEPLOYED',
-      description: 'REAK-1 Emergency Medical Kit dropped via precision winch release.',
+      description: 'REAK-1 Emergency Medical Kit dropped via precision winch release onto rooftop.',
       type: 'SUCCESS',
+      emergencyStatusSync: 'ASSISTANCE_IN_PROGRESS',
       alert: {
         severity: 'INFO',
-        title: 'PAYLOAD DELIVERED',
-        message: 'REAK-1 Medical kit delivered to survivor platform.',
+        title: 'MEDICAL PAYLOAD DELIVERED',
+        message: 'REAK-1 Emergency Medical Kit delivered successfully to victim rooftop.',
       },
     },
     {
       id: 'evt-9',
       stepIndex: 9,
       timeOffsetSec: 60,
-      title: 'MISSION COMPLETED - RETURNING HOME',
-      description: 'Rescue objectives fulfilled. AVIRON-01 executing Return to Base trajectory.',
+      title: 'MISSION COMPLETED - RESOLVED',
+      description: 'Rescue team on-site. Objectives fulfilled. AVIRON-01 executing Return to Base.',
       type: 'SUCCESS',
+      emergencyStatusSync: 'RESOLVED',
       alert: {
         severity: 'INFO',
-        title: 'MISSION ACCOMPLISHED',
-        message: 'AVIRON-01 returning to base station. Report generated.',
+        title: 'EMERGENCY RESOLVED',
+        message: 'Incident ER-2026-001 marked RESOLVED. Mission report generated.',
       },
     },
   ];
@@ -224,7 +234,7 @@ export class DemoSimulationEngine {
 
     this.timer = setInterval(() => {
       this.tick();
-    }, 1000 / this.speedMultiplier);
+    }, 1500 / this.speedMultiplier);
 
     this.notify();
   }
@@ -243,7 +253,7 @@ export class DemoSimulationEngine {
     this.currentStepIndex = 0;
 
     this.unit = {
-      id: 'unit-01-demo',
+      id: 'unit-01',
       code: 'AVIRON-01',
       name: 'Alpha Sentinel (Demo)',
       model: 'AVIRON Mk-IV Amphibious Recon',
@@ -258,7 +268,7 @@ export class DemoSimulationEngine {
     };
 
     this.telemetry = {
-      avironUnitId: 'unit-01-demo',
+      avironUnitId: 'unit-01',
       battery: 74.0,
       voltage: 22.8,
       current: 14.2,
@@ -281,9 +291,17 @@ export class DemoSimulationEngine {
     this.detectionsList = [];
     this.alertsList = [];
 
-    // Trigger initial event
+    // Apply initial event
     this.applyScenarioEvent(this.scenarioEvents[0]);
     this.notify();
+  }
+
+  public goToStep(stepIndex: number) {
+    if (stepIndex >= 0 && stepIndex < this.scenarioEvents.length) {
+      this.currentStepIndex = stepIndex;
+      this.applyScenarioEvent(this.scenarioEvents[this.currentStepIndex]);
+      this.notify();
+    }
   }
 
   public nextStep() {
@@ -310,11 +328,10 @@ export class DemoSimulationEngine {
 
   private tick() {
     // 1. Move Unit along Waypoint Path based on current step
-    const targetWpIndex = Math.min(Math.floor(this.currentStepIndex / 2), this.waypoints.length - 1);
+    const targetWpIndex = Math.min(Math.floor((this.currentStepIndex * (this.waypoints.length - 1)) / (this.scenarioEvents.length - 1)), this.waypoints.length - 1);
     const targetWp = this.waypoints[targetWpIndex];
 
-    // Smooth movement interpolation
-    const stepSize = 0.00015;
+    const stepSize = 0.0002;
     const dLat = targetWp.lat - this.unit.lat;
     const dLng = targetWp.lng - this.unit.lng;
     const dist = Math.sqrt(dLat * dLat + dLng * dLng);
@@ -329,7 +346,7 @@ export class DemoSimulationEngine {
     }
 
     // 2. Battery drain & Telemetry variation
-    this.unit.battery = Math.max(10, parseFloat((this.unit.battery - 0.08).toFixed(1)));
+    this.unit.battery = Math.max(10, parseFloat((this.unit.battery - 0.05).toFixed(1)));
     this.unit.signalStrength = Math.min(99, Math.max(85, Math.floor(92 + (Math.random() * 6 - 3))));
     this.unit.lastSeen = new Date().toISOString();
 
@@ -345,11 +362,19 @@ export class DemoSimulationEngine {
       timestamp: new Date().toISOString(),
     };
 
-    // 3. Check scenario step progression based on time/ticks
-    const nextEvent = this.scenarioEvents[this.currentStepIndex + 1];
-    if (nextEvent && this.isPlaying) {
-      // Advance step every ~6 ticks
-      if (Math.random() > 0.75) {
+    // Sync unit location into AvironStore
+    useAvironStore.getState().updateUnit('unit-01', {
+      lat: this.unit.lat,
+      lng: this.unit.lng,
+      speed: this.unit.speed,
+      heading: this.unit.heading,
+      battery: this.unit.battery,
+      signalStrength: this.unit.signalStrength,
+    });
+
+    // Advance event progression periodically when playing
+    if (this.isPlaying && this.currentStepIndex < this.scenarioEvents.length - 1) {
+      if (Math.random() > 0.6) {
         this.currentStepIndex++;
         this.applyScenarioEvent(this.scenarioEvents[this.currentStepIndex]);
       }
@@ -368,6 +393,10 @@ export class DemoSimulationEngine {
       description: evt.description,
       timestamp,
     });
+
+    if (evt.emergencyStatusSync) {
+      useEmergencyStore.getState().updateRequestStatus('er-001', evt.emergencyStatusSync);
+    }
 
     if (evt.detection) {
       const det: Detection = {
@@ -416,6 +445,12 @@ export class DemoSimulationEngine {
         createdAt: timestamp,
       };
       this.alertsList.unshift(alertItem);
+
+      useNotificationStore.getState().addNotification({
+        type: 'EMERGENCY',
+        title: evt.alert.title || evt.title,
+        message: evt.alert.message || evt.description,
+      });
     }
   }
 

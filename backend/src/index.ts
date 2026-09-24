@@ -13,6 +13,8 @@ import reportRoutes from './routes/reports';
 import healthRoutes from './routes/health';
 import storageRoutes from './routes/storage';
 import profileRoutes from './routes/profiles';
+import emergencyRoutes from './routes/emergencies';
+import teamRoutes from './routes/teams';
 import { initWebSocketServer } from './services/websocketService';
 
 dotenv.config();
@@ -36,6 +38,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/storage', storageRoutes);
 app.use('/api/profiles', profileRoutes);
+app.use('/api/emergencies', emergencyRoutes);
+app.use('/api/teams', teamRoutes);
 
 // Healthcheck endpoint
 app.get('/api/ping', (req, res) => {

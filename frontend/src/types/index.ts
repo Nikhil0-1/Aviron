@@ -1,10 +1,20 @@
-export type Role = 'ADMIN' | 'OPERATOR' | 'MEDICAL_OPERATOR' | 'VIEWER';
+export type Role = 
+  | 'ADMIN' 
+  | 'TEAM_LEADER' 
+  | 'RESCUE_OPERATOR' 
+  | 'MEDICAL_OPERATOR' 
+  | 'VICTIM' 
+  | 'VIEWER'
+  | 'OPERATOR';
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: Role;
+  phone?: string;
+  avatarUrl?: string;
+  createdAt?: string;
 }
 
 export type UnitStatus = 'ACTIVE' | 'STANDBY' | 'CHARGING' | 'OFFLINE';
@@ -22,6 +32,7 @@ export interface AvironUnit {
   heading: number;
   signalStrength: number;
   ipAddress?: string;
+  raspberryPiId?: string;
   lastSeen: string;
 }
 
@@ -60,6 +71,8 @@ export interface Mission {
   searchRadius: number;
   avironUnitId?: string;
   avironUnit?: AvironUnit;
+  assignedTeamId?: string;
+  emergencyRequestId?: string;
   waypoints?: Waypoint[];
   survivors?: Survivor[];
   createdAt: string;
@@ -164,10 +177,11 @@ export interface Alert {
 export interface CommunicationMessage {
   id: string;
   avironUnitId?: string;
-  sender: 'OPERATOR' | 'AVIRON' | 'SYSTEM';
+  sender: 'OPERATOR' | 'AVIRON' | 'SYSTEM' | 'VICTIM' | 'RESCUE_TEAM';
   message: string;
   channel: string;
   timestamp: string;
+  senderName?: string;
 }
 
 export interface MissionEvent {
@@ -212,4 +226,126 @@ export interface RaspberryPiConfig {
   protocol: 'WebSocket' | 'REST' | 'MQTT';
   token?: string;
   autoConnect: boolean;
+}
+
+// Extended Models for Multi-Panel System
+
+export type EmergencyType = 
+  | 'MEDICAL'
+  | 'ACCIDENT'
+  | 'FIRE'
+  | 'FLOOD'
+  | 'EARTHQUAKE'
+  | 'TRAPPED'
+  | 'MISSING'
+  | 'OTHER';
+
+export type EmergencyPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
+export type EmergencyStatus = 
+  | 'NEW' 
+  | 'ACKNOWLEDGED' 
+  | 'ASSIGNED' 
+  | 'AVIRON_DEPLOYED' 
+  | 'EN_ROUTE' 
+  | 'ARRIVED' 
+  | 'ASSISTANCE_IN_PROGRESS' 
+  | 'RESOLVED' 
+  | 'CANCELLED';
+
+export interface EmergencyRequest {
+  id: string;
+  requestCode: string;
+  victimId: string;
+  victimName: string;
+  victimPhone?: string;
+  type: EmergencyType;
+  priority: EmergencyPriority;
+  description: string;
+  condition: string;
+  lat: number;
+  lng: number;
+  locationName?: string;
+  status: EmergencyStatus;
+  assignedTeamId?: string;
+  assignedTeamName?: string;
+  assignedAvironId?: string;
+  assignedAvironCode?: string;
+  etaMinutes?: number;
+  distanceKm?: number;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  media?: IncidentMedia[];
+}
+
+export interface RescueTeam {
+  id: string;
+  code: string;
+  name: string;
+  leaderId: string;
+  leaderName: string;
+  status: 'ACTIVE' | 'STANDBY' | 'ON_MISSION' | 'OFFLINE';
+  memberCount: number;
+  currentMissionId?: string;
+  createdAt: string;
+}
+
+export interface TeamMember {
+  id: string;
+  teamId: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: 'LEADER' | 'RESCUE_OPERATOR' | 'MEDICAL_OPERATOR';
+  status: 'ONLINE' | 'OFFLINE' | 'BUSY';
+  currentMissionId?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface TeamChatMessage {
+  id: string;
+  teamId?: string;
+  missionId?: string;
+  channel: 'MISSION' | 'TEAM' | 'EMERGENCY';
+  senderId: string;
+  senderName: string;
+  senderRole: Role;
+  message: string;
+  timestamp: string;
+}
+
+export interface VictimProfile {
+  id: string;
+  userId: string;
+  name: string;
+  phone: string;
+  emergencyContact: string;
+  medicalNotes?: string;
+  createdAt: string;
+}
+
+export interface IncidentMedia {
+  id: string;
+  incidentId: string;
+  uploadedBy: string;
+  fileName: string;
+  fileType: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  r2Key: string;
+  url: string;
+  fileSize: number;
+  createdAt: string;
+}
+
+export interface AppNotification {
+  id: string;
+  targetRole?: Role;
+  targetUserId?: string;
+  type: 'EMERGENCY' | 'MISSION' | 'TELEMETRY' | 'PAYLOAD' | 'SURVIVOR' | 'SYSTEM';
+  title: string;
+  message: string;
+  isRead: boolean;
+  link?: string;
+  createdAt: string;
 }

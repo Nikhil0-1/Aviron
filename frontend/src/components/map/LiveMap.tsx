@@ -2,17 +2,17 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, Polygon, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { AvironUnit, Mission, Survivor, Waypoint } from '../../types';
-import { Radio, Battery, Gauge, Navigation, LifeBuoy } from 'lucide-react';
+import { LifeBuoy } from 'lucide-react';
+import { useAvironStore } from '../../store/useAvironStore';
 
 interface LiveMapProps {
-  unit: AvironUnit;
-  mission: Mission | null;
-  survivors: Survivor[];
+  unit?: AvironUnit;
+  mission?: Mission | null;
+  survivors?: Survivor[];
   waypoints?: Waypoint[];
   autoFollow?: boolean;
 }
 
-// Custom Leaflet DivIcons using Tailwind SVG icons for clean vector rendering
 const createAvironIcon = (heading: number, battery: number) => {
   return L.divIcon({
     className: 'custom-aviron-icon',
@@ -78,7 +78,6 @@ const createWaypointIcon = (seq: number) => {
   });
 };
 
-// Auto Recenter Hook
 const MapAutoRecenter: React.FC<{ center: [number, number]; autoFollow?: boolean }> = ({
   center,
   autoFollow = true,
@@ -92,11 +91,31 @@ const MapAutoRecenter: React.FC<{ center: [number, number]; autoFollow?: boolean
   return null;
 };
 
-export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, autoFollow = true }) => {
-  const unitPos: [number, number] = [unit.lat || 28.6139, unit.lng || 77.2090];
+export const LiveMap: React.FC<LiveMapProps> = ({
+  unit: propUnit,
+  mission = null,
+  survivors = [],
+  autoFollow = true,
+}) => {
+  const { units } = useAvironStore();
+  const activeUnit = propUnit || units[0] || {
+    id: 'unit-01',
+    code: 'AVIRON-01',
+    name: 'Alpha Sentinel',
+    model: 'AVIRON Mk-IV Amphibious Recon',
+    status: 'ACTIVE',
+    battery: 74,
+    lat: 28.6139,
+    lng: 77.2090,
+    speed: 4.8,
+    heading: 135,
+    signalStrength: 92,
+    lastSeen: new Date().toISOString(),
+  };
+
+  const unitPos: [number, number] = [activeUnit.lat || 28.6139, activeUnit.lng || 77.2090];
   const basePos: [number, number] = [28.6139, 77.2090];
 
-  // Map route points
   const routePoints: [number, number][] = mission?.waypoints
     ? mission.waypoints.map((wp) => [wp.lat, wp.lng])
     : [
@@ -108,7 +127,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
         basePos,
       ];
 
-  // Geofence polygon area
   const geofenceCoords: [number, number][] = [
     [28.6120, 77.2050],
     [28.6180, 77.2050],
@@ -118,7 +136,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
 
   return (
     <div className="relative w-full h-[400px] sm:h-[480px] lg:h-full rounded-2xl overflow-hidden border border-slate-200 shadow-card">
-      {/* Live Map Overlay Badge */}
       <div className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-subtle flex items-center space-x-2 text-xs font-bold text-navy-950">
         <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-ping"></span>
         <span>LIVE MAP TACTICAL DISPLAY</span>
@@ -130,13 +147,11 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
       <MapContainer center={unitPos} zoom={15} scrollWheelZoom={true} className="w-full h-full">
         <MapAutoRecenter center={unitPos} autoFollow={autoFollow} />
 
-        {/* Tile Layer (Clean CartoDB Positron / OSM Light) */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
 
-        {/* Geofence Search Polygon */}
         <Polygon
           positions={geofenceCoords}
           pathOptions={{
@@ -148,7 +163,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           }}
         />
 
-        {/* Active Target Search Radius Circle */}
         <Circle
           center={[mission?.targetLat || 28.6155, mission?.targetLng || 77.2125]}
           radius={mission?.searchRadius || 400}
@@ -160,7 +174,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           }}
         />
 
-        {/* Mission Route Polyline */}
         <Polyline
           positions={routePoints}
           pathOptions={{
@@ -171,7 +184,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           }}
         />
 
-        {/* Base Station Marker */}
         <Marker position={basePos} icon={createBaseIcon()}>
           <Popup>
             <div className="p-1 font-sans text-xs">
@@ -181,7 +193,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           </Popup>
         </Marker>
 
-        {/* Waypoints */}
         {mission?.waypoints?.map((wp) => (
           <Marker key={wp.seq} position={[wp.lat, wp.lng]} icon={createWaypointIcon(wp.seq)}>
             <Popup>
@@ -193,7 +204,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           </Marker>
         ))}
 
-        {/* Survivor Markers */}
         {survivors.map((surv) => (
           <Marker key={surv.id} position={[surv.lat, surv.lng]} icon={createSurvivorIcon()}>
             <Popup>
@@ -211,32 +221,27 @@ export const LiveMap: React.FC<LiveMapProps> = ({ unit, mission, survivors, auto
           </Marker>
         ))}
 
-        {/* Moving AVIRON Unit Marker */}
-        <Marker position={unitPos} icon={createAvironIcon(unit.heading, unit.battery)}>
+        <Marker position={unitPos} icon={createAvironIcon(activeUnit.heading, activeUnit.battery)}>
           <Popup>
             <div className="p-2 w-52 font-sans">
               <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
-                <span className="font-extrabold text-navy-950 text-sm">{unit.code}</span>
+                <span className="font-extrabold text-navy-950 text-sm">{activeUnit.code}</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                  {unit.status}
+                  {activeUnit.status}
                 </span>
               </div>
               <div className="space-y-1 text-xs text-slate-700">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Battery:</span>
-                  <span className="font-bold text-navy-900">{unit.battery}%</span>
+                  <span className="font-bold text-navy-900">{activeUnit.battery}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Speed:</span>
-                  <span className="font-bold text-navy-900">{unit.speed} m/s</span>
+                  <span className="font-bold text-navy-900">{activeUnit.speed} m/s</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Signal:</span>
-                  <span className="font-bold text-teal-600">{unit.signalStrength}% Excellent</span>
-                </div>
-                <div className="flex justify-between border-t border-slate-100 pt-1 text-[11px]">
-                  <span className="text-slate-400">Mission:</span>
-                  <span className="font-mono text-cyan-600 font-bold">{mission?.code || 'AV-001'}</span>
+                  <span className="font-bold text-teal-600">{activeUnit.signalStrength}% Excellent</span>
                 </div>
               </div>
             </div>
