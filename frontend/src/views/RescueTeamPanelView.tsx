@@ -76,101 +76,113 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
   });
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-16">
-      {/* Top Header */}
-      <div className="bg-slate-950 border-b border-slate-800 px-4 py-3 sticky top-[41px] z-30 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-teal-500 text-slate-950 flex items-center justify-center font-black">
-            <ShieldAlert className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-black text-white leading-tight">AVIRON Rescue Operator Panel</h1>
-            <p className="text-[11px] font-semibold text-teal-400 font-mono">Team Alpha Operations HQ</p>
-          </div>
-        </div>
-
-        {/* Tab Selector */}
-        <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('DASHBOARD')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'DASHBOARD' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('QUEUE')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'QUEUE' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Queue ({requests.filter((r) => r.status === 'NEW').length})
-          </button>
-          <button
-            onClick={() => setActiveTab('LIVE_OPS')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'LIVE_OPS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Live Ops
-          </button>
-          <button
-            onClick={() => setActiveTab('MEMBERS')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'MEMBERS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Team Members
-          </button>
-          <button
-            onClick={() => setActiveTab('CHAT')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'CHAT' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Comms Chat
-          </button>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        {/* TAB 1: DASHBOARD OVERVIEW */}
-        {activeTab === 'DASHBOARD' && (
-          <div className="space-y-6">
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE INCIDENTS</span>
-                <p className="text-2xl font-black text-rose-400 mt-1">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20 max-w-full min-w-0 overflow-x-hidden">
+      {/* Responsive Header */}
+      <div className="bg-slate-950 border-b border-slate-800 px-3 sm:px-4 py-2.5 sticky top-[41px] z-30 min-w-0 max-w-full">
+        <div className="max-w-7xl mx-auto space-y-2">
+          <div className="flex items-center justify-between min-w-0">
+            <div className="flex items-center space-x-2 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-teal-500 text-slate-950 flex items-center justify-center font-black shrink-0">
+                <ShieldAlert className="w-4.5 h-4.5" />
               </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">AVIRON UNITS</span>
-                <p className="text-2xl font-black text-cyan-400 mt-1">{units.length}</p>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ASSIGNED MISSIONS</span>
-                <p className="text-2xl font-black text-teal-400 mt-1">{requests.filter((r) => r.assignedTeamId === 'team-alpha').length}</p>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SURVIVORS ASSISTED</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">12</p>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">TEAM STATUS</span>
-                <p className="text-lg font-black text-amber-400 mt-1">ON MISSION</p>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-black text-white truncate leading-tight">AVIRON Rescue Panel</h1>
+                <p className="text-[10px] font-semibold text-teal-400 font-mono truncate">Team Alpha HQ</p>
               </div>
             </div>
 
-            {/* Main Interactive Vector Map */}
-            <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-                <span className="text-xs font-mono font-bold text-cyan-400">TACTICAL MAP — OPERATIONAL GRID</span>
-                <button onClick={() => setActiveTab('LIVE_OPS')} className="text-xs text-teal-400 font-bold hover:underline">
-                  Open Full Ops Controls →
+            <button
+              onClick={() => setActiveTab('LIVE_OPS')}
+              className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-[11px] rounded-xl shadow-sm shrink-0 flex items-center space-x-1"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>LIVE OPS</span>
+            </button>
+          </div>
+
+          {/* Scrollable Tab Bar */}
+          <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto no-scrollbar max-w-full min-w-0 flex-nowrap">
+            <button
+              onClick={() => setActiveTab('DASHBOARD')}
+              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'DASHBOARD' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('QUEUE')}
+              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'QUEUE' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Queue ({requests.filter((r) => r.status === 'NEW').length})
+            </button>
+            <button
+              onClick={() => setActiveTab('LIVE_OPS')}
+              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'LIVE_OPS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Live Ops
+            </button>
+            <button
+              onClick={() => setActiveTab('MEMBERS')}
+              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'MEMBERS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Roster
+            </button>
+            <button
+              onClick={() => setActiveTab('CHAT')}
+              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'CHAT' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Comms
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 pt-4 min-w-0">
+        {/* TAB 1: DASHBOARD OVERVIEW */}
+        {activeTab === 'DASHBOARD' && (
+          <div className="space-y-4 min-w-0">
+            {/* KPI Cards Grid (2 cols on mobile, 5 cols on desktop) */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-4 min-w-0">
+              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ACTIVE INCIDENTS</span>
+                <p className="text-xl sm:text-2xl font-black text-rose-400 mt-0.5">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+              </div>
+              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">AVIRON UNITS</span>
+                <p className="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5">{units.length}</p>
+              </div>
+              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ASSIGNED MISSIONS</span>
+                <p className="text-xl sm:text-2xl font-black text-teal-400 mt-0.5">{requests.filter((r) => r.assignedTeamId === 'team-alpha').length}</p>
+              </div>
+              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">SURVIVORS ASSISTED</span>
+                <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">12</p>
+              </div>
+              <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 min-w-0 col-span-2 md:col-span-1">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">TEAM STATUS</span>
+                <p className="text-base sm:text-lg font-black text-amber-400 mt-0.5">ON MISSION</p>
+              </div>
+            </div>
+
+            {/* Main Tactical Vector Map */}
+            <div className="bg-slate-950 rounded-3xl p-3 sm:p-4 border border-slate-800 shadow-xl min-w-0">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-3 min-w-0">
+                <span className="text-xs font-mono font-bold text-cyan-400 truncate">TACTICAL MAP DISPLAY</span>
+                <button onClick={() => setActiveTab('LIVE_OPS')} className="text-[11px] text-teal-400 font-bold hover:underline shrink-0">
+                  Full Controls →
                 </button>
               </div>
-              <div className="h-[420px] rounded-2xl overflow-hidden border border-slate-800">
+              <div className="h-[300px] sm:h-[420px] rounded-2xl overflow-hidden border border-slate-800 w-full min-w-0">
                 <LiveMap />
               </div>
             </div>
@@ -179,15 +191,15 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
 
         {/* TAB 2: MISSION QUEUE */}
         {activeTab === 'QUEUE' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
               <div>
-                <h2 className="text-xl font-black text-white">Emergency Mission Queue</h2>
-                <p className="text-xs text-slate-400">Respond to incoming victim assistance dispatches</p>
+                <h2 className="text-lg font-black text-white">Emergency Queue</h2>
+                <p className="text-xs text-slate-400">Respond to incoming emergency dispatches</p>
               </div>
 
               {/* Priority Filters */}
-              <div className="flex space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+              <div className="flex space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto no-scrollbar max-w-full">
                 {(['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'] as const).map((p) => (
                   <button
                     key={p}
@@ -202,9 +214,9 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 min-w-0">
               {filteredRequests.map((req) => (
-                <div key={req.id} className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between shadow-lg">
+                <div key={req.id} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between shadow-lg min-w-0">
                   <div>
                     <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                       <span className="text-xs font-mono font-bold text-cyan-400">{req.requestCode}</span>
@@ -219,25 +231,25 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
                       </span>
                     </div>
 
-                    <div className="mt-3 space-y-1">
-                      <h3 className="text-sm font-extrabold text-white">{req.type} EMERGENCY</h3>
-                      <p className="text-xs text-slate-300">{req.locationName}</p>
-                      <p className="text-xs text-slate-400 italic pt-1">"{req.description}"</p>
+                    <div className="mt-2 space-y-1 min-w-0">
+                      <h3 className="text-xs sm:text-sm font-extrabold text-white truncate">{req.type} EMERGENCY</h3>
+                      <p className="text-xs text-slate-300 truncate">{req.locationName}</p>
+                      <p className="text-xs text-slate-400 italic pt-1 line-clamp-2">"{req.description}"</p>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-slate-400">Status: {req.status}</span>
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono text-slate-400 truncate">Status: {req.status}</span>
                     {req.status === 'NEW' ? (
                       <button
                         onClick={() => handleAcceptMission(req.id)}
-                        className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center space-x-1"
+                        className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center space-x-1 shrink-0"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>ACCEPT MISSION</span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>ACCEPT</span>
                       </button>
                     ) : (
-                      <span className="text-xs text-emerald-400 font-bold">Assigned ({req.assignedTeamName})</span>
+                      <span className="text-[11px] text-emerald-400 font-bold shrink-0">Assigned</span>
                     )}
                   </div>
                 </div>
@@ -248,41 +260,41 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
 
         {/* TAB 3: TEAM LIVE OPERATIONS */}
         {activeTab === 'LIVE_OPS' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
               {/* Map & Live Video Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-950 rounded-2xl p-3 border border-slate-800 h-[320px] overflow-hidden flex flex-col">
-                  <span className="text-[11px] font-mono font-bold text-cyan-400 mb-2">VECTOR NAVIGATION MAP</span>
-                  <div className="flex-1 rounded-xl overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 min-w-0">
+                <div className="bg-slate-950 rounded-2xl p-2.5 sm:p-3 border border-slate-800 h-[280px] sm:h-[340px] overflow-hidden flex flex-col min-w-0">
+                  <span className="text-[10px] font-mono font-bold text-cyan-400 mb-1.5 truncate">VECTOR NAVIGATION MAP</span>
+                  <div className="flex-1 rounded-xl overflow-hidden min-w-0">
                     <LiveMap />
                   </div>
                 </div>
-                <div className="bg-slate-950 rounded-2xl p-3 border border-slate-800 h-[320px] overflow-hidden flex flex-col">
-                  <span className="text-[11px] font-mono font-bold text-teal-400 mb-2">OPTICAL / FLIR VIDEO FEED</span>
-                  <div className="flex-1 rounded-xl overflow-hidden">
+                <div className="bg-slate-950 rounded-2xl p-2.5 sm:p-3 border border-slate-800 h-[280px] sm:h-[340px] overflow-hidden flex flex-col min-w-0">
+                  <span className="text-[10px] font-mono font-bold text-teal-400 mb-1.5 truncate">OPTICAL / FLIR STREAM</span>
+                  <div className="flex-1 rounded-xl overflow-hidden min-w-0">
                     <LiveVideoFeed />
                   </div>
                 </div>
               </div>
 
               {/* Mission Controls Bar */}
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <span className="text-xs font-mono font-bold text-amber-400">TACTICAL MISSION CONTROLS</span>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5 min-w-0">
+                <span className="text-xs font-mono font-bold text-amber-400 uppercase">Mission Controls</span>
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 text-xs">
                   <button
                     onClick={() => simEngine.start()}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                    className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center space-x-1"
                   >
-                    <Play className="w-4 h-4" />
-                    <span>START AUTONOMOUS NAV</span>
+                    <Play className="w-3.5 h-3.5 shrink-0" />
+                    <span>START NAV</span>
                   </button>
                   <button
                     onClick={() => simEngine.pause()}
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                    className="py-2.5 px-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl flex items-center justify-center space-x-1"
                   >
-                    <Pause className="w-4 h-4" />
-                    <span>PAUSE MISSION</span>
+                    <Pause className="w-3.5 h-3.5 shrink-0" />
+                    <span>PAUSE</span>
                   </button>
                   <button
                     onClick={() => {
@@ -290,84 +302,72 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
                       addNotification({
                         type: 'PAYLOAD',
                         title: '📦 MEDICAL PAYLOAD DROPPED',
-                        message: 'REAK-1 Medical Supply Dropped onto victim rooftop platform.',
+                        message: 'REAK-1 Medical Supply Kit dropped onto rooftop platform.',
                       });
                     }}
-                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                    className="py-2.5 px-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl flex items-center justify-center space-x-1 col-span-2 sm:col-auto"
                   >
-                    <Zap className="w-4 h-4" />
-                    <span>DEPLOY MEDICAL PAYLOAD</span>
+                    <Zap className="w-3.5 h-3.5 shrink-0" />
+                    <span>DROP PAYLOAD</span>
                   </button>
                   <button
                     onClick={() => {
                       updateRequestStatus('er-001', 'RESOLVED');
                       addNotification({
                         type: 'EMERGENCY',
-                        title: '✅ MISSION MARKED RESOLVED',
-                        message: 'Emergency #ER-2026-001 marked RESOLVED. AVIRON returning to base.',
+                        title: '✅ MISSION RESOLVED',
+                        message: 'Incident marked RESOLVED.',
                       });
                     }}
-                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5"
+                    className="py-2.5 px-3 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl flex items-center justify-center space-x-1 col-span-2 sm:col-auto"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span>MARK RESOLVED</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Telemetry & Victim Detail Sidebar */}
-            <div className="space-y-4">
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <span className="text-xs font-mono font-bold text-cyan-400">AVIRON-01 TELEMETRY</span>
+            {/* Right Telemetry & Victim Info Sidebar */}
+            <div className="space-y-4 min-w-0">
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5 min-w-0">
+                <span className="text-xs font-mono font-bold text-cyan-400 uppercase">AVIRON Telemetry</span>
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="bg-slate-900 p-2.5 rounded-xl"><span className="text-slate-500">Battery</span><p className="font-bold text-cyan-400">{activeUnit.battery.toFixed(1)}%</p></div>
-                  <div className="bg-slate-900 p-2.5 rounded-xl"><span className="text-slate-500">Speed</span><p className="font-bold text-emerald-400">{activeUnit.speed.toFixed(1)} m/s</p></div>
-                  <div className="bg-slate-900 p-2.5 rounded-xl"><span className="text-slate-500">Signal</span><p className="font-bold text-amber-400">{activeUnit.signalStrength} dBm</p></div>
-                  <div className="bg-slate-900 p-2.5 rounded-xl"><span className="text-slate-500">Heading</span><p className="font-bold text-teal-400">{activeUnit.heading.toFixed(0)}°</p></div>
+                  <div className="bg-slate-900 p-2 rounded-xl"><span className="text-slate-500 text-[10px]">Battery</span><p className="font-bold text-cyan-400">{activeUnit.battery.toFixed(1)}%</p></div>
+                  <div className="bg-slate-900 p-2 rounded-xl"><span className="text-slate-500 text-[10px]">Speed</span><p className="font-bold text-emerald-400">{activeUnit.speed.toFixed(1)} m/s</p></div>
+                  <div className="bg-slate-900 p-2 rounded-xl"><span className="text-slate-500 text-[10px]">Signal</span><p className="font-bold text-amber-400">{activeUnit.signalStrength} dBm</p></div>
+                  <div className="bg-slate-900 p-2 rounded-xl"><span className="text-slate-500 text-[10px]">Heading</span><p className="font-bold text-teal-400">{activeUnit.heading.toFixed(0)}°</p></div>
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                <span className="font-mono font-bold text-rose-400">ASSIGNED VICTIM INFO</span>
-                <p className="text-slate-200 font-bold">Aarav Kumar (Stranded on rooftop)</p>
-                <p className="text-slate-400">Location: Sector 4 Flood Plain</p>
-                <p className="text-slate-400">Condition: Cannot move, needs medical kit</p>
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1.5 text-xs min-w-0">
+                <span className="font-mono font-bold text-rose-400 uppercase">Assigned Victim</span>
+                <p className="text-slate-200 font-bold truncate">Aarav Kumar (Rooftop Stranded)</p>
+                <p className="text-slate-400 text-[11px] truncate">Sector 4 Flood Plain</p>
+                <p className="text-slate-400 text-[11px]">Condition: Cannot move, needs medical kit</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* TAB 4: TEAM MEMBERS MANAGEMENT */}
+        {/* TAB 4: MEMBERS */}
         {activeTab === 'MEMBERS' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-black text-white">Team Alpha Roster Management</h2>
-                <p className="text-xs text-slate-400">Leader: Capt. Rahul Sharma | Active Operators: {members.length}</p>
-              </div>
-            </div>
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-800 space-y-4 min-w-0 shadow-xl">
+            <h2 className="text-base sm:text-lg font-black text-white">Team Roster Management</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-w-0">
               {members.map((mem) => (
-                <div key={mem.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-teal-950 border border-teal-500/40 text-teal-400 flex items-center justify-center font-bold">
+                <div key={mem.id} className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between text-xs min-w-0">
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-teal-950 border border-teal-500/40 text-teal-400 flex items-center justify-center font-bold shrink-0">
                       {mem.name.charAt(0)}
                     </div>
-                    <div>
-                      <h4 className="font-extrabold text-white">{mem.name}</h4>
-                      <p className="text-[11px] text-slate-400">{mem.role}</p>
-                      <p className="text-[10px] font-mono text-cyan-400 mt-0.5">{mem.email}</p>
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-white truncate">{mem.name}</h4>
+                      <p className="text-[10px] text-slate-400 truncate">{mem.role}</p>
                     </div>
                   </div>
-                  <span
-                    className={`text-[10px] font-mono font-extrabold px-2.5 py-1 rounded-full border ${
-                      mem.status === 'ONLINE'
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                        : 'bg-slate-800 text-slate-400 border-slate-700'
-                    }`}
-                  >
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 shrink-0">
                     {mem.status}
                   </span>
                 </div>
@@ -378,54 +378,51 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
 
         {/* TAB 5: COMMS CHAT */}
         {activeTab === 'CHAT' && (
-          <div className="bg-slate-950 rounded-3xl p-6 border border-slate-800 flex flex-col h-[520px]">
-            <div className="pb-3 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <h3 className="font-black text-white text-sm">Team Comms Network</h3>
-                <div className="flex space-x-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-[11px] font-bold">
-                  {(['EMERGENCY', 'MISSION', 'TEAM'] as const).map((ch) => (
-                    <button
-                      key={ch}
-                      onClick={() => setChatChannel(ch)}
-                      className={`px-2.5 py-0.5 rounded transition-all ${
-                        chatChannel === ch ? 'bg-teal-500 text-slate-950' : 'text-slate-400'
-                      }`}
-                    >
-                      {ch}
-                    </button>
-                  ))}
-                </div>
+          <div className="bg-slate-950 rounded-3xl p-4 sm:p-5 border border-slate-800 flex flex-col h-[480px] min-w-0 shadow-xl">
+            <div className="pb-2.5 border-b border-slate-800 flex items-center justify-between min-w-0">
+              <h3 className="font-black text-white text-xs sm:text-sm truncate">Team Comms Network</h3>
+              <div className="flex space-x-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-[10px] font-bold shrink-0">
+                {(['EMERGENCY', 'MISSION', 'TEAM'] as const).map((ch) => (
+                  <button
+                    key={ch}
+                    onClick={() => setChatChannel(ch)}
+                    className={`px-2 py-0.5 rounded transition-all ${
+                      chatChannel === ch ? 'bg-teal-500 text-slate-950' : 'text-slate-400'
+                    }`}
+                  >
+                    {ch}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Chat History */}
-            <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1 text-xs">
+            <div className="flex-1 overflow-y-auto py-3 space-y-2.5 pr-1 text-xs min-w-0">
               {chatMessages
                 .filter((m) => m.channel === chatChannel)
                 .map((msg) => (
-                  <div key={msg.id} className="bg-slate-900 p-3 rounded-2xl border border-slate-800 space-y-1">
+                  <div key={msg.id} className="bg-slate-900 p-3 rounded-2xl border border-slate-800 space-y-1 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                      <span className="font-bold text-teal-400">{msg.senderName} ({msg.senderRole})</span>
-                      <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="font-bold text-teal-400 truncate">{msg.senderName} ({msg.senderRole})</span>
+                      <span className="shrink-0">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
-                    <p className="text-slate-200 leading-relaxed font-medium">{msg.message}</p>
+                    <p className="text-slate-200 leading-snug font-medium break-words">{msg.message}</p>
                   </div>
                 ))}
             </div>
 
-            <form onSubmit={handleSendTeamChat} className="pt-3 border-t border-slate-800 flex space-x-2">
+            <form onSubmit={handleSendTeamChat} className="pt-2 border-t border-slate-800 flex space-x-2">
               <input
                 type="text"
-                placeholder={`Type message into ${chatChannel} channel...`}
+                placeholder={`Type into ${chatChannel}...`}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="flex-1 p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-0"
               />
               <button
                 type="submit"
-                className="px-4 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center shadow-md"
+                className="px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center shrink-0"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
               </button>
             </form>
           </div>
