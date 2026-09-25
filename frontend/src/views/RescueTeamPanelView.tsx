@@ -97,26 +97,26 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
   });
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20 max-w-full min-w-0 overflow-x-hidden">
-      {/* Responsive Header */}
-      <div className="bg-slate-950 border-b border-slate-800 px-3 sm:px-4 py-2.5 sticky top-[41px] z-30 min-w-0 max-w-full">
-        <div className="max-w-7xl mx-auto space-y-2">
+    <div className="flex-1 flex flex-col min-w-0 max-w-full pb-20 bg-slate-900 text-slate-100 font-sans">
+      {/* Responsive Panel Header */}
+      <div className="bg-slate-950 border-b border-slate-800 px-4 py-3 sm:py-3.5 relative z-30 min-w-0 max-w-full flex-shrink-0">
+        <div className="max-w-7xl mx-auto space-y-3">
           <div className="flex items-center justify-between min-w-0">
-            <div className="flex items-center space-x-2 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-teal-500 text-slate-950 flex items-center justify-center font-black shrink-0">
-                <ShieldAlert className="w-4.5 h-4.5" />
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-teal-500 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-md">
+                <ShieldAlert className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-base font-black text-white truncate leading-tight">AVIRON Rescue Panel</h1>
-                <p className="text-[10px] font-semibold text-teal-400 font-mono truncate">Team Alpha HQ</p>
+                <h1 className="text-base sm:text-lg font-black text-white truncate leading-tight">AVIRON Rescue Panel</h1>
+                <p className="text-xs font-semibold text-teal-400 font-mono truncate">Team Alpha HQ Operational Unit</p>
               </div>
             </div>
 
             <button
               onClick={() => handleTabChange('LIVE_OPS')}
-              className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-[11px] rounded-xl shadow-sm shrink-0 flex items-center space-x-1"
+              className="px-3.5 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-md shrink-0 flex items-center space-x-1.5 transition-all"
             >
-              <Navigation className="w-3.5 h-3.5" />
+              <Navigation className="w-4 h-4" />
               <span>LIVE OPS</span>
             </button>
           </div>
@@ -125,7 +125,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
           <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto no-scrollbar max-w-full min-w-0 flex-nowrap">
             <button
               onClick={() => handleTabChange('DASHBOARD')}
-              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'DASHBOARD' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -133,7 +133,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             </button>
             <button
               onClick={() => handleTabChange('QUEUE')}
-              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'QUEUE' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -141,7 +141,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             </button>
             <button
               onClick={() => handleTabChange('LIVE_OPS')}
-              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'LIVE_OPS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -149,7 +149,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             </button>
             <button
               onClick={() => handleTabChange('MEMBERS')}
-              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'MEMBERS' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -157,7 +157,7 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
             </button>
             <button
               onClick={() => handleTabChange('CHAT')}
-              className={`px-3 py-1 rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'CHAT' ? 'bg-teal-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -167,58 +167,77 @@ export const RescueTeamPanelView: React.FC<RescueTeamPanelViewProps> = ({ onNavi
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 pt-4 min-w-0">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 min-w-0 flex-1">
         {/* TAB 1: DASHBOARD OVERVIEW */}
         {activeTab === 'DASHBOARD' && (
-          <div className="space-y-4 min-w-0">
-            {/* KPI Cards Grid (2 cols on mobile, 5 cols on desktop) */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-4 min-w-0">
+          <div className="space-y-6 min-w-0">
+            {/* System KPIs Grid (2 cols mobile, 3 cols tablet/laptop, 4 cols desktop, 5 cols large screen) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 min-w-0 overflow-visible">
               <div
                 onClick={() => handleTabChange('QUEUE')}
-                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ACTIVE INCIDENTS</span>
-                <p className="text-xl sm:text-2xl font-black text-rose-400 mt-0.5">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">ACTIVE INCIDENTS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-rose-400 leading-none">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+                  <span className="text-[10px] font-mono text-rose-400/80 bg-rose-950/60 px-2 py-0.5 rounded border border-rose-900/60">DISPATCH</span>
+                </div>
               </div>
+
               <div
                 onClick={() => handleTabChange('LIVE_OPS')}
-                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">AVIRON UNITS</span>
-                <p className="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5">{units.length}</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">AVIRON UNITS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-cyan-400 leading-none">{units.length}</p>
+                  <span className="text-[10px] font-mono text-cyan-400/80 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-900/60">READY</span>
+                </div>
               </div>
+
               <div
                 onClick={() => handleTabChange('QUEUE')}
-                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">ASSIGNED MISSIONS</span>
-                <p className="text-xl sm:text-2xl font-black text-teal-400 mt-0.5">{requests.filter((r) => r.assignedTeamId === 'team-alpha').length}</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">ASSIGNED MISSIONS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-teal-400 leading-none">{requests.filter((r) => r.assignedTeamId === 'team-alpha').length}</p>
+                  <span className="text-[10px] font-mono text-teal-400/80 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-900/60">ACTIVE</span>
+                </div>
               </div>
+
               <div
                 onClick={() => handleTabChange('DASHBOARD')}
-                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">SURVIVORS ASSISTED</span>
-                <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">12</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">SURVIVORS ASSISTED</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-400 leading-none">12</p>
+                  <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-900/60">RESCUED</span>
+                </div>
               </div>
+
               <div
                 onClick={() => handleTabChange('MEMBERS')}
-                className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 col-span-2 md:col-span-1"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 uppercase truncate block">TEAM STATUS</span>
-                <p className="text-base sm:text-lg font-black text-amber-400 mt-0.5">ON MISSION</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">TEAM STATUS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-xl sm:text-2xl font-black text-amber-400 leading-none">ON MISSION</p>
+                  <span className="text-[10px] font-mono text-amber-400/80 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/60">ALPHA</span>
+                </div>
               </div>
             </div>
 
             {/* Main Tactical Vector Map */}
-            <div className="bg-slate-950 rounded-3xl p-3 sm:p-4 border border-slate-800 shadow-xl min-w-0">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-3 min-w-0">
+            <div className="bg-slate-950 rounded-3xl p-4 sm:p-5 border border-slate-800 shadow-xl min-w-0 space-y-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800 min-w-0">
                 <span className="text-xs font-mono font-bold text-cyan-400 truncate">TACTICAL MAP DISPLAY</span>
-                <button onClick={() => handleTabChange('LIVE_OPS')} className="text-[11px] text-teal-400 font-bold hover:underline shrink-0">
+                <button onClick={() => handleTabChange('LIVE_OPS')} className="text-xs text-teal-400 font-bold hover:underline shrink-0">
                   Full Controls →
                 </button>
               </div>
-              <div className="h-[300px] sm:h-[420px] rounded-2xl overflow-hidden border border-slate-800 w-full min-w-0">
+              <div className="h-[360px] sm:h-[440px] lg:h-[480px] xl:h-[540px] rounded-2xl overflow-hidden border border-slate-800 w-full min-w-0">
                 <LiveMap />
               </div>
             </div>

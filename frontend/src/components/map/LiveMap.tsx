@@ -91,6 +91,24 @@ const MapAutoRecenter: React.FC<{ center: [number, number]; autoFollow?: boolean
   return null;
 };
 
+const MapResizeHandler: React.FC = () => {
+  const map = useMap();
+  useEffect(() => {
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleResize);
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, [map]);
+  return null;
+};
+
 export const LiveMap: React.FC<LiveMapProps> = ({
   unit: propUnit,
   mission = null,
@@ -135,17 +153,18 @@ export const LiveMap: React.FC<LiveMapProps> = ({
   ];
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[480px] lg:h-full rounded-2xl overflow-hidden border border-slate-200 shadow-card">
-      <div className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-subtle flex items-center space-x-2 text-xs font-bold text-navy-950">
-        <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-ping"></span>
+    <div className="relative w-full h-full min-h-[360px] sm:min-h-[420px] rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+      <div className="absolute top-3 left-3 z-20 bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 shadow-md flex items-center space-x-2 text-xs font-bold text-white">
+        <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
         <span>LIVE MAP TACTICAL DISPLAY</span>
-        <span className="text-[10px] font-normal text-slate-500 border-l border-slate-200 pl-2">
+        <span className="text-[10px] font-mono text-slate-400 border-l border-slate-800 pl-2">
           RTK Fix ±0.03m
         </span>
       </div>
 
       <MapContainer center={unitPos} zoom={15} scrollWheelZoom={true} className="w-full h-full">
         <MapAutoRecenter center={unitPos} autoFollow={autoFollow} />
+        <MapResizeHandler />
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'

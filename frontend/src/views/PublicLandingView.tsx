@@ -97,7 +97,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ onNavigate
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-cyan-500 selection:text-white">
       {/* 1. PUBLIC NAVBAR */}
-      <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-[41px] z-40 px-4 py-3 shadow-sm">
+      <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200 relative z-40 px-4 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Identity */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigatePanel('PUBLIC')}>

@@ -154,9 +154,9 @@ export const VictimPanelView: React.FC<VictimPanelViewProps> = ({ onNavigatePane
   };
 
   return (
-    <div className="min-h-screen bg-rose-50/40 text-slate-900 pb-20 max-w-full min-w-0 overflow-x-hidden">
+    <div className="flex-1 flex flex-col min-w-0 max-w-full pb-20 bg-rose-50/40 text-slate-900">
       {/* Responsive Header */}
-      <div className="bg-white border-b border-rose-100 px-3 sm:px-4 py-2.5 sticky top-[41px] z-30 shadow-sm min-w-0 max-w-full">
+      <div className="bg-white border-b border-rose-100 px-3 sm:px-4 py-3 relative z-30 shadow-sm min-w-0 max-w-full flex-shrink-0">
         <div className="max-w-xl mx-auto space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 min-w-0">

@@ -159,103 +159,125 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({ onNavigatePanel 
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-20">
+    <div className="flex-1 flex flex-col min-w-0 max-w-full pb-20 bg-slate-900 text-slate-100 font-sans">
       {/* Top Header */}
-      <div className="bg-slate-950 border-b border-slate-800 px-4 py-3 sticky top-[41px] z-30 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md">
-            <Cpu className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-black text-white leading-tight">AVIRON System Admin Panel</h1>
-            <p className="text-[11px] font-semibold text-indigo-400 font-mono">Global Command & Control Hub</p>
-          </div>
-        </div>
+      <div className="bg-slate-950 border-b border-slate-800 px-4 py-3 sm:py-3.5 relative z-30 min-w-0 max-w-full flex-shrink-0">
+        <div className="max-w-7xl mx-auto space-y-3">
+          <div className="flex items-center justify-between min-w-0">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md shrink-0">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-lg font-black text-white leading-tight truncate">AVIRON System Admin Panel</h1>
+                <p className="text-xs font-semibold text-indigo-400 font-mono truncate">Global Command & Control Hub</p>
+              </div>
+            </div>
 
-        {/* Tab Navigation Bar (Scrollable on mobile) */}
-        <div className="hidden sm:flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-          {[
-            { id: 'DASHBOARD', label: 'Dashboard' },
-            { id: 'MAP', label: 'Live Map' },
-            { id: 'USERS', label: 'Users' },
-            { id: 'TEAMS', label: 'Teams' },
-            { id: 'AVIRON', label: 'Fleet' },
-            { id: 'EMERGENCIES', label: 'Emergencies' },
-            { id: 'REPORTS', label: 'Reports' },
-            { id: 'SETTINGS', label: 'Settings' },
-          ].map((t) => (
-            <button
-              key={t.id}
-              onClick={() => handleTabChange(t.id)}
-              className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-                activeTab === t.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+            {/* Tab Navigation Bar (Scrollable on mobile) */}
+            <div className="hidden sm:flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold overflow-x-auto no-scrollbar flex-nowrap">
+              {[
+                { id: 'DASHBOARD', label: 'Dashboard' },
+                { id: 'MAP', label: 'Live Map' },
+                { id: 'USERS', label: 'Users' },
+                { id: 'TEAMS', label: 'Teams' },
+                { id: 'AVIRON', label: 'Fleet' },
+                { id: 'EMERGENCIES', label: 'Emergencies' },
+                { id: 'REPORTS', label: 'Reports' },
+                { id: 'SETTINGS', label: 'Settings' },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => handleTabChange(t.id)}
+                  className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    activeTab === t.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-6">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 min-w-0 flex-1">
         {/* TAB 1: DASHBOARD OVERVIEW */}
         {activeTab === 'DASHBOARD' && (
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {/* System KPIs Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5 min-w-0 overflow-visible">
               <div
                 onClick={() => handleTabChange('AVIRON')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">TOTAL AVIRON</span>
-                <p className="text-2xl font-black text-cyan-400 mt-1">12</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">TOTAL AVIRON</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-cyan-400 leading-none">12</p>
+                  <span className="text-[10px] font-mono text-cyan-400/80 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-900/60">UNITS</span>
+                </div>
               </div>
               <div
                 onClick={() => handleTabChange('EMERGENCIES')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE MISSIONS</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">04</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">ACTIVE MISSIONS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-400 leading-none">04</p>
+                  <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-900/60">ACTIVE</span>
+                </div>
               </div>
               <div
                 onClick={() => handleTabChange('TEAMS')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE TEAMS</span>
-                <p className="text-2xl font-black text-indigo-400 mt-1">08</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">ACTIVE TEAMS</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-indigo-400 leading-none">08</p>
+                  <span className="text-[10px] font-mono text-indigo-400/80 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-900/60">ROSTER</span>
+                </div>
               </div>
               <div
                 onClick={() => handleTabChange('EMERGENCIES')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">OPEN EMERGENCIES</span>
-                <p className="text-2xl font-black text-rose-400 mt-1">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">OPEN EMERGENCIES</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-rose-400 leading-none">{requests.filter((r) => r.status !== 'RESOLVED').length}</p>
+                  <span className="text-[10px] font-mono text-rose-400/80 bg-rose-950/60 px-2 py-0.5 rounded border border-rose-900/60">QUEUED</span>
+                </div>
               </div>
               <div
                 onClick={() => handleTabChange('REPORTS')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-teal-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SURVIVORS ASSISTED</span>
-                <p className="text-2xl font-black text-teal-400 mt-1">124</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">SURVIVORS ASSISTED</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-teal-400 leading-none">124</p>
+                  <span className="text-[10px] font-mono text-teal-400/80 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-900/60">TOTAL</span>
+                </div>
               </div>
               <div
                 onClick={() => handleTabChange('SETTINGS')}
-                className="bg-slate-950 p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02]"
+                className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:scale-[1.02] min-w-0 min-h-[110px] flex flex-col justify-between overflow-visible shadow-md"
               >
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">SYSTEM HEALTH</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">98%</p>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400 uppercase tracking-wider block truncate">SYSTEM HEALTH</span>
+                <div className="mt-2 flex items-baseline justify-between">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-400 leading-none">98%</p>
+                  <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-900/60">OPTIMAL</span>
+                </div>
               </div>
             </div>
 
             {/* Global System Map */}
-            <div className="bg-slate-950 rounded-3xl p-4 border border-slate-800 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-                <span className="text-xs font-mono font-bold text-indigo-400">GLOBAL INCIDENT & FLEET MONITOR</span>
-                <button onClick={() => handleTabChange('MAP')} className="text-xs text-indigo-400 font-bold hover:underline">
+            <div className="bg-slate-950 rounded-3xl p-4 sm:p-5 border border-slate-800 shadow-xl min-w-0 space-y-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800 min-w-0">
+                <span className="text-xs font-mono font-bold text-indigo-400 truncate">GLOBAL INCIDENT & FLEET MONITOR</span>
+                <button onClick={() => handleTabChange('MAP')} className="text-xs text-indigo-400 font-bold hover:underline shrink-0">
                   Full Screen Map →
                 </button>
               </div>
-              <div className="h-[360px] sm:h-[460px] rounded-2xl overflow-hidden border border-slate-800">
+              <div className="h-[360px] sm:h-[440px] lg:h-[480px] xl:h-[540px] rounded-2xl overflow-hidden border border-slate-800 w-full min-w-0">
                 <LiveMap />
               </div>
             </div>
